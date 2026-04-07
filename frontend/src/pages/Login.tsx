@@ -5,7 +5,7 @@ import { api } from '../services/api';
 import TwoFactorLogin from '../components/TwoFactorLogin';
 
 function LoginInner() {
-  const { login, isAuthenticated, user, loading } = useAuth();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -17,24 +17,6 @@ function LoginInner() {
 
   const [requires2fa, setRequires2fa] = useState(false);
   const [tempUserId, setTempUserId] = useState<number | null>(null);
-
-  // Auto-redirect if already logged in
-  useEffect(() => {
-    if (!loading && isAuthenticated && user) {
-      const rolePath = user.role === 'ADMIN' ? '/admin' : user.role === 'AGENT' ? '/agent' : '/passenger';
-      navigate(from || rolePath, { replace: true });
-    }
-  }, [loading, isAuthenticated, user, navigate, from]);
-
-  if (loading) {
-    return (
-      <div className="auth-wrapper">
-        <div className="auth-card">
-          <p>Verificando sesión...</p>
-        </div>
-      </div>
-    );
-  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
