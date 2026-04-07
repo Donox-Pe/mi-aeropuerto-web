@@ -10,10 +10,21 @@ const isConfigured = Boolean(stripeSecretKey && !stripeSecretKey.includes('PLACE
 let stripe: Stripe | null = null;
 
 if (isConfigured) {
-  stripe = new Stripe(stripeSecretKey, { apiVersion: '2024-11-20.acacia' as any });
-  console.log('✅ Stripe SDK inicializado correctamente con nuevas claves');
+  // Validación básica del formato de la clave
+  if (stripeSecretKey.startsWith('pk_')) {
+    console.error('❌ ERROR CRÍTICO: STRIPE_SECRET_KEY parece ser una clave pública (empieza con pk_). Debes usar la clave secreta (sk_).');
+  } else if (!stripeSecretKey.startsWith('sk_')) {
+    console.error('❌ ERROR CRÍTICO: STRIPE_SECRET_KEY no tiene el formato correcto (debe empezar con sk_).');
+  }
+
+  stripe = new Stripe(stripeSecretKey, { 
+    apiVersion: '2024-11-20.acacia' as any,
+    timeout: 30000,           // Aumentar a 30s para Render
+    maxNetworkRetries: 3,     // Un intento extra
+  });
+  console.log('✅ Stripe SDK inicializado (Timeout: 30s)');
 } else {
-  console.log('⚠️ Stripe no configurado (usando claves placeholder)');
+  console.log('⚠️ Stripe no configurado correctamente en variables de entorno.');
 }
 
 export function isStripeConfigured(): boolean {
