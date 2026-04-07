@@ -96,7 +96,11 @@ export async function createStripeSession(req: Request, res: Response) {
     });
   } catch (err: any) {
     console.error('Stripe createSession error:', err);
-    return res.status(500).json({ message: 'Error al crear sesión de Stripe', error: err.message });
+    return res.status(500).json({ 
+      message: 'Error al crear sesión de Stripe', 
+      error: err.message,
+      stripeError: err.raw?.message || err.message 
+    });
   }
 }
 

@@ -468,7 +468,8 @@ function AvailableFlights() {
       // Mostrar ticket
       setShowTicket(true);
     } catch (err: any) {
-      alert(err?.response?.data?.message || 'Error al procesar el pago');
+      const msg = err?.response?.data?.stripeError || err?.response?.data?.message || 'Error al procesar el pago';
+      alert(msg);
       setShowPaymentModal(false);
     }
   }
