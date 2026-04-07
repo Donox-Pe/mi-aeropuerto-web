@@ -13,9 +13,24 @@ import { z } from 'zod';
  * Verifica si Stripe está configurado
  */
 export async function getStripeStatus(_req: Request, res: Response) {
+  // Prueba de diagnóstico de red
+  let connectivity = 'Desconocida';
+  try {
+    const start = Date.now();
+    await fetch('https://api.stripe.com/v1/healthcheck', { method: 'HEAD', timeout: 5000 } as any);
+    connectivity = `Exitosa (${Date.now() - start}ms)`;
+  } catch (err: any) {
+    connectivity = `Fallida: ${err.message}`;
+  }
+
   return res.json({
     configured: isStripeConfigured(),
     publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || null,
+    diagnostics: {
+      outbound_connectivity: connectivity,
+      platform: process.platform,
+      node_version: process.version
+    }
   });
 }
 
