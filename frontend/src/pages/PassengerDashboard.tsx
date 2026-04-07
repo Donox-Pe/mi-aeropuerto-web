@@ -777,13 +777,13 @@ function PassengerApp() {
       }
       
       if (paymentMethod === 'STRIPE') {
-        const session = await stripeApi.createSession(bookingId);
+        const session = await stripeApi.createSession(bookingId as number);
         window.location.href = session.url;
         return;
       }
       
       // Pago manual (Efectivo/Tarjeta)
-      if (paymentMethod !== 'STRIPE') {
+      if ((paymentMethod as string) !== 'STRIPE') {
           // Si el booking ya existía, deberíamos enviar una señal de que queremos pagar manual
           // En este caso, el flujo manual asume aprobación inmediata o gestión por agente.
           // Para este demo, simplemente mostramos el ticket.
