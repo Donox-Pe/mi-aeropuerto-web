@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `Payment` ADD COLUMN `paymentMethod` ENUM('EFECTIVO', 'TARJETA') NOT NULL DEFAULT 'EFECTIVO';
