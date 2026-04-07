@@ -21,3 +21,9 @@ services:
           property: connectionString
       - key: JWT_SECRET
         generateValue: true
+      - key: STRIPE_PUBLISHABLE_KEY
+        value: pk_test_51TJ3dHRqnLYmNCfKB61EocDfid0InuKt8NbxrxZ0H7l4wze7aYoUKqhM1FJE4sBir2YPFJ7uuFmKfzKPhPFK8sax00oe21y3DI
+      - key: STRIPE_SUCCESS_URL
+        value: http://aeroazteca.surge.sh/payment/success
+      - key: STRIPE_CANCEL_URL
+        value: http://aeroazteca.surge.sh/payment/cancel

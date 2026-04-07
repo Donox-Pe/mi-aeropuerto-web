@@ -15,13 +15,17 @@ export function connectSocket(): Socket {
     throw new Error('No autenticado');
   }
 
-  // Conectar al mismo host que la API (proxied por Vite en dev)
-  socket = io(window.location.origin, {
+  const apiUrl = import.meta.env.VITE_API_URL || '';
+  const socketUrl = apiUrl.replace(/\/api$/, '') || window.location.origin;
+
+  // Conectar al servidor de Render con Polling primero (más estable)
+  socket = io(socketUrl, {
     auth: { token },
-    transports: ['websocket', 'polling'],
+    transports: ['polling', 'websocket'],
     reconnection: true,
-    reconnectionAttempts: 10,
-    reconnectionDelay: 2000,
+    reconnectionAttempts: 15,
+    reconnectionDelay: 1000,
+    timeout: 20000,
   });
 
   socket.on('connect', () => {
