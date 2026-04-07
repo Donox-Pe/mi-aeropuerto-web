@@ -4,6 +4,7 @@ import { api, AuthResponse, User } from '../services/api';
 type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
+  loading: boolean;
   login: (email: string, password: string) => Promise<User>;
   logout: () => void;
 };
@@ -12,15 +13,20 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const rawUser = localStorage.getItem('user');
-    if (rawUser) setUser(JSON.parse(rawUser));
+    if (rawUser) {
+      setUser(JSON.parse(rawUser));
+    }
+    setLoading(false);
   }, []);
 
   const value = useMemo<AuthContextType>(() => ({
     user,
     isAuthenticated: Boolean(user),
+    loading,
     async login(email: string, password: string) {
       const { data } = await api.post<AuthResponse>('/auth/login', { email, password });
       localStorage.setItem('token', data.token);
@@ -33,7 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem('user');
       setUser(null);
     },
-  }), [user]);
+  }), [user, loading]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
