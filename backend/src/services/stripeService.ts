@@ -2,7 +2,8 @@ import Stripe from 'stripe';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY || '';
+// Limpiar la clave de posibles espacios o saltos de línea invisibles
+const stripeSecretKey = (process.env.STRIPE_SECRET_KEY || '').trim();
 
 // Solo inicializar si la clave no es placeholder
 const isConfigured = Boolean(stripeSecretKey && !stripeSecretKey.includes('PLACEHOLDER'));
@@ -10,19 +11,24 @@ const isConfigured = Boolean(stripeSecretKey && !stripeSecretKey.includes('PLACE
 let stripe: Stripe | null = null;
 
 if (isConfigured) {
-  // Validación básica del formato de la clave
+  // Validación de seguridad y formato
+  const keyLength = stripeSecretKey.length;
+  const keyStart = stripeSecretKey.substring(0, 7);
+  const keyEnd = stripeSecretKey.substring(keyLength - 4);
+  
+  console.log(`🔍 Validando Clave Stripe: Longitud=${keyLength}, Empieza con=${keyStart}, Termina con=${keyEnd}`);
+
   if (stripeSecretKey.startsWith('pk_')) {
-    console.error('❌ ERROR CRÍTICO: STRIPE_SECRET_KEY parece ser una clave pública (empieza con pk_). Debes usar la clave secreta (sk_).');
-  } else if (!stripeSecretKey.startsWith('sk_')) {
-    console.error('❌ ERROR CRÍTICO: STRIPE_SECRET_KEY no tiene el formato correcto (debe empezar con sk_).');
+    console.error('❌ ERROR: Estás usando una clave PÚBLICA como secreta.');
   }
 
   stripe = new Stripe(stripeSecretKey, { 
     apiVersion: '2024-11-20.acacia' as any,
-    timeout: 30000,           // Aumentar a 30s para Render
-    maxNetworkRetries: 3,     // Un intento extra
+    timeout: 60000,           // 60 segundos por si acaso
+    maxNetworkRetries: 5,     // Más intentos
+    protocol: 'https',
   });
-  console.log('✅ Stripe SDK inicializado (Timeout: 30s)');
+  console.log('✅ Stripe SDK inicializado con limpieza de espacios (Timeout 60s)');
 } else {
   console.log('⚠️ Stripe no configurado correctamente en variables de entorno.');
 }
