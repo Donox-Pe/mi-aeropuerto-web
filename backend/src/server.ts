@@ -3,6 +3,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -57,15 +58,21 @@ export function createServer() {
   app.use('/api/stripe', stripeRoutes);
   app.use('/api/notifications', notificationRoutes);
   
-  // Servir frontend en producción
+  // Servir frontend en producción (solo si existe la carpeta dist)
   const frontendPath = path.resolve(__dirname, '../../frontend/dist');
-  app.use(express.static(frontendPath));
-
-  // Manejo de SPA: Redirigir todas las rutas no-API a index.html
-  app.get('*', (req, res, next) => {
-    if (req.path.startsWith('/api')) return next();
-    res.sendFile(path.join(frontendPath, 'index.html'));
-  });
+  
+  if (fs.existsSync(frontendPath)) {
+    app.use(express.static(frontendPath));
+    app.get('*', (req, res, next) => {
+      if (req.path.startsWith('/api')) return next();
+      res.sendFile(path.join(frontendPath, 'index.html'));
+    });
+  } else {
+    // Si no hay frontend, responder algo básico en el root
+    app.get('/', (req, res) => {
+      res.json({ message: 'AeroAzteca API Online', version: '1.0.0' });
+    });
+  }
   
   // Manejador de errores global
   app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
