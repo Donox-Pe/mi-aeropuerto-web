@@ -1,0 +1,10 @@
+node_modules/
+.env
+dist/
+.DS_Store
+*.log
+frontend/dist/
+backend/dist/
+RESPALDO_AEROAZTECA_CLEAN.sql
+RESPALDO_AEROAZTECA_COMPLETO.sql
+RESPALDO_AEROAZTECA_UTF8.sql

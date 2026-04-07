@@ -1,0 +1,324 @@
+:root {
+    --bg: #0a0a0a;
+    --card: #141414;
+    --muted: #a3a3a3;
+    --text: #ffffff;
+    --primary: #3b82f6;
+    --primary-600: #2563eb;
+    --border: #262626;
+}
+
+* {
+    box-sizing: border-box
+}
+
+body {
+    margin: 0;
+    color: var(--text);
+    font-family: Inter, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif
+}
+
+a {
+    color: var(--text);
+    text-decoration: none
+}
+
+input,
+button {
+    font: inherit
+}
+
+.auth-wrapper {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 24px
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 380px;
+    background: rgba(26, 26, 26, 0.85);
+    border: 1px solid rgba(64, 64, 64, 0.8);
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.auth-card h1 {
+    margin: 0 0 8px 0;
+    font-size: 28px
+}
+
+.subtitle {
+    color: var(--muted);
+    margin-bottom: 16px
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px
+}
+
+.form label {
+    font-size: 14px;
+    color: var(--muted)
+}
+
+.form input {
+    background: #121212;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    color: var(--text)
+}
+
+.btn-primary {
+    background: var(--primary);
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 8px;
+    color: white;
+    cursor: pointer
+}
+
+.btn-primary:hover {
+    background: var(--primary-600)
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer
+}
+
+.error-chip {
+    background: #7f1d1d;
+    color: #fecaca;
+    border: 1px solid #b91c1c;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px
+}
+
+.hint {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 8px
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1
+}
+
+.sidebar {
+    background: rgba(15, 15, 15, 0.9);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    z-index: 100;
+    overflow: visible;
+}
+
+/* Rotating border effect for sidebar */
+.sidebar::before { display: none; }
+/* Solid background for sidebar */
+.sidebar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 10, 10, 0.8);
+    border-right: 1px solid rgba(38, 38, 38, 0.8);
+    z-index: -1;
+}
+
+.brand {
+    font-weight: 700;
+    margin-bottom: 12px
+}
+
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px
+}
+
+.sidebar a {
+    padding: 10px 12px;
+    border-radius: 8px
+}
+
+.sidebar a:hover {
+    background: #1e1e1e;
+}
+
+.spacer {
+    flex: 1
+}
+
+.userbox {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: auto;
+}
+
+.name {
+    font-size: 14px;
+    color: var(--muted)
+}
+
+.content {
+    padding: 24px
+}
+
+.card {
+    background: rgba(20, 20, 20, 0.85);
+    border: 1px solid rgba(45, 45, 45, 0.8);
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Formal airline style for important cards */
+.card-fancy {
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+    border: 1px solid #3b82f6;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+}
+
+.card-fancy::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: #3b82f6;
+    z-index: 2;
+}
+
+@keyframes moveBorder {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.card-image {
+    background-color: #0f172a;
+    border: 1px solid #3b82f6 !important;
+    padding: 0 !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+}
+
+.card-image::before {
+    display: none;
+}
+
+.grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr))
+}
+
+.flight-card {
+    background: rgba(20, 20, 20, 0.9);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px
+}
+
+.flight-head {
+    font-weight: 700;
+    margin-bottom: 6px
+}
+
+.muted {
+    color: var(--muted)
+}
+
+.table {
+    display: grid;
+    gap: 6px;
+    overflow-x: auto
+}
+
+.thead,
+.trow {
+    display: grid;
+    gap: 6px;
+    padding: 8px
+}
+
+.thead {
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px
+}
+
+.trow {
+    border-bottom: 1px solid rgba(255, 255, 255, .05);
+    padding: 10px 8px;
+    pointer-events: auto
+}
+
+.trow:hover {
+    background: rgba(255, 255, 255, .03)
+}
+
+.trow button {
+    pointer-events: auto;
+    position: relative
+}
+
+.list {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none
+}
+
+.hero {
+    display: grid;
+    place-items: center;
+    height: 180px;
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(135deg, #262626 0%, #0a0a0a 100%);
+    border: 1px solid #404040;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.hero::before { display: none; }
+.hero::after { display: none; }

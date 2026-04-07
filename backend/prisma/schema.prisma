@@ -1,0 +1,173 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "windows"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model booking {
+  id              Int                    @id @default(autoincrement())
+  userId          Int
+  flightId        Int
+  seatId          Int?
+  price           Float?                 @default(0)
+  offerId         Int?
+  discountPercent Int?                   @default(0)
+  finalPrice      Float?                 @default(0)
+  status          booking_status         @default(PENDING)
+  paymentMethod   booking_paymentMethod?
+  createdAt       DateTime               @default(now())
+  flight          flight                 @relation(fields: [flightId], references: [id], onDelete: Cascade, map: "Booking_flightId_fkey")
+  traveloffer     traveloffer?           @relation(fields: [offerId], references: [id], map: "Booking_offerId_fkey")
+  seat            seat?                  @relation(fields: [seatId], references: [id], map: "Booking_seatId_fkey")
+  user            user                   @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Booking_userId_fkey")
+  payment         payment?
+
+  @@unique([userId, flightId], map: "Booking_userId_flightId_key")
+  @@index([flightId], map: "Booking_flightId_fkey")
+  @@index([offerId], map: "Booking_offerId_fkey")
+  @@index([seatId], map: "Booking_seatId_fkey")
+}
+
+model flight {
+  id             Int              @id @default(autoincrement())
+  code           String           @unique(map: "Flight_code_key")
+  origin         String
+  destination    String
+  departureAt    DateTime
+  arrivalAt      DateTime
+  seatsTotal     Int
+  seatsAvailable Int
+  numeroAvion    String?
+  categoria      flight_categoria @default(BASIC)
+  lugarArribo    String?
+  puertaArribo   String?
+  checkInTime    DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  booking        booking[]
+  seat           seat[]
+}
+
+model payment {
+  id              Int                   @id @default(autoincrement())
+  bookingId       Int                   @unique(map: "Payment_bookingId_key")
+  amount          Float
+  status          String                @default("completed")
+  paymentMethod   payment_paymentMethod @default(EFECTIVO)
+  stripePaymentId String?               @unique(map: "Payment_stripePaymentId_key")
+  stripeSessionId String?               @unique(map: "Payment_stripeSessionId_key")
+  currency        String                @default("MXN")
+  createdAt       DateTime              @default(now())
+  booking         booking               @relation(fields: [bookingId], references: [id], onDelete: Cascade, map: "Payment_bookingId_fkey")
+}
+
+model notification {
+  id        Int               @id @default(autoincrement())
+  userId    Int
+  title     String
+  message   String            @db.Text
+  type      notification_type @default(INFO)
+  isRead    Boolean           @default(false)
+  createdAt DateTime          @default(now())
+  user      user              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Notification_userId_fkey")
+
+  @@index([userId], map: "Notification_userId_idx")
+}
+
+model seat {
+  id         Int            @id @default(autoincrement())
+  number     String
+  seatClass  seat_seatClass
+  flightId   Int
+  isOccupied Boolean        @default(false)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  booking    booking[]
+  flight     flight         @relation(fields: [flightId], references: [id], onDelete: Cascade, map: "Seat_flightId_fkey")
+
+  @@unique([flightId, number], map: "Seat_flightId_number_key")
+}
+
+model traveloffer {
+  id              Int       @id @default(autoincrement())
+  destination     String
+  description     String
+  imageUrl        String
+  originalPrice   Float
+  discountPrice   Float
+  discountPercent Int
+  isActive        Boolean   @default(true)
+  destinationCode String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  booking         booking[]
+}
+
+model user {
+  id                Int            @id @default(autoincrement())
+  email             String         @unique(map: "User_email_key")
+  password          String
+  fullName          String
+  role              user_role      @default(PASSENGER)
+  twoFactorSecret   String?
+  twoFactorEnabled  Boolean        @default(false)
+  resetToken        String?        @db.VarChar(255)
+  resetTokenExpiry  DateTime?
+  loginAttempts     Int            @default(0)
+  lockedUntil       DateTime?
+  lastLogin         DateTime?
+  lastLogout        DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  booking           booking[]
+  notification      notification[]
+}
+
+enum seat_seatClass {
+  FIRST
+  PREMIUM
+  ECONOMY
+}
+
+enum payment_paymentMethod {
+  EFECTIVO
+  TARJETA
+  STRIPE
+}
+
+enum user_role {
+  ADMIN
+  AGENT
+  PASSENGER
+}
+
+enum booking_status {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum booking_paymentMethod {
+  EFECTIVO
+  TARJETA
+  STRIPE
+}
+
+enum notification_type {
+  INFO
+  FLIGHT_UPDATE
+  BOARDING
+  PAYMENT
+  BOOKING
+  ALERT
+}
+
+enum flight_categoria {
+  BASIC
+  PRIVATE
+  INTERNATIONAL
+}
