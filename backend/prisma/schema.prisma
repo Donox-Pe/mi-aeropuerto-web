@@ -27,9 +27,9 @@ model booking {
   payment         payment?
 
   @@unique([userId, flightId], map: "Booking_userId_flightId_key")
-  @@index([flightId], map: "Booking_flightId_fkey")
-  @@index([offerId], map: "Booking_offerId_fkey")
-  @@index([seatId], map: "Booking_seatId_fkey")
+  @@index([flightId], map: "Booking_flightId_idx")
+  @@index([offerId], map: "Booking_offerId_idx")
+  @@index([seatId], map: "Booking_seatId_idx")
 }
 
 model flight {
