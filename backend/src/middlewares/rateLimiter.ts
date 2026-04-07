@@ -5,11 +5,11 @@ import rateLimit from 'express-rate-limit';
  * Previene ataques de fuerza bruta.
  */
 export const authRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 10, // máximo 10 intentos por ventana
+  windowMs: 5 * 60 * 1000, // 5 minutos
+  max: 30, // máximo 30 intentos por ventana (más relajado para pruebas)
   message: {
-    message: 'Demasiados intentos. Intenta de nuevo en 15 minutos.',
-    retryAfter: 15,
+    message: 'Demasiados intentos. Intenta de nuevo en 5 minutos.',
+    retryAfter: 5,
   },
   standardHeaders: true,
   legacyHeaders: false,

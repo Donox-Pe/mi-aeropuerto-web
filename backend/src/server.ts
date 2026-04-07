@@ -26,6 +26,9 @@ dotenv.config();
 export function createServer() {
   const app = express();
 
+  // Confiar en el proxy (necesario para Render/Heroku para detectar el IP real)
+  app.set('trust proxy', 1);
+
   // CORS
   app.use(cors());
 

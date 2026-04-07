@@ -11,7 +11,7 @@ services:
     plan: free
     rootDir: backend
     buildCommand: npm install && npx prisma generate && npm run build
-    startCommand: npx prisma db push --accept-data-loss && npm start
+    startCommand: npx prisma db push --accept-data-loss && npm run seed && npm start
     envVars:
       - key: NODE_VERSION
         value: 20
