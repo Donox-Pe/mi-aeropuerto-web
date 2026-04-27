@@ -69,7 +69,14 @@ export async function login(req: Request, res: Response) {
   const token = signToken({ sub: user.id, role: user.role });
   return res.json({
     token,
-    user: { id: user.id, email: user.email, fullName: user.fullName, role: user.role },
+    user: { 
+      id: user.id, 
+      email: user.email, 
+      fullName: user.fullName, 
+      role: user.role,
+      loyaltyPoints: user.loyaltyPoints,
+      loyaltyTier: user.loyaltyTier
+    },
   });
 }
 
@@ -169,7 +176,14 @@ export async function validate2FA(req: Request, res: Response) {
 
   return res.json({
     token,
-    user: { id: user.id, email: user.email, fullName: user.fullName, role: user.role },
+    user: { 
+      id: user.id, 
+      email: user.email, 
+      fullName: user.fullName, 
+      role: user.role,
+      loyaltyPoints: user.loyaltyPoints,
+      loyaltyTier: user.loyaltyTier
+    },
   });
 }
 
@@ -269,4 +283,28 @@ export async function resetPassword(req: Request, res: Response) {
   });
 
   return res.json({ message: 'Contraseña actualizada correctamente ✅' });
+}
+
+// ─── GET ME ──────────────────────────────────────────────────
+export async function getMe(req: Request, res: Response) {
+  if (!req.user) return res.status(401).json({ message: 'No autorizado' });
+
+  const user = await prisma.user.findUnique({
+    where: { id: req.user.sub },
+    select: {
+      id: true,
+      email: true,
+      fullName: true,
+      role: true,
+      loyaltyPoints: true,
+      loyaltyTier: true,
+      twoFactorEnabled: true,
+      lastLogin: true,
+      createdAt: true
+    }
+  });
+
+  if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+
+  return res.json(user);
 }

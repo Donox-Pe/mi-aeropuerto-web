@@ -22,6 +22,37 @@ function Layout({ children }: { children: React.ReactNode }) {
         </nav>
         <div className="userbox">
           <div className="name">{user?.fullName}</div>
+          
+          {/* Badge de Lealtad Premium */}
+          {user?.role === 'PASSENGER' && (
+            <div style={{
+              margin: '12px 0',
+              padding: '12px',
+              background: 'rgba(255,255,255,0.05)',
+              borderRadius: '12px',
+              border: '1px solid rgba(255,255,255,0.1)'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                <span style={{ fontSize: 12, opacity: 0.6, textTransform: 'uppercase', letterSpacing: 1 }}>Nivel</span>
+                <span style={{ 
+                  fontSize: 12, 
+                  fontWeight: 'bold',
+                  padding: '2px 8px',
+                  borderRadius: '20px',
+                  background: user.loyaltyTier === 'GOLD' ? 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)' : 
+                             user.loyaltyTier === 'SILVER' ? 'linear-gradient(135deg, #94a3b8 0%, #475569 100%)' :
+                             'linear-gradient(135deg, #b45309 0%, #78350f 100%)',
+                  color: 'white'
+                }}>
+                  {user.loyaltyTier || 'BRONZE'}
+                </span>
+              </div>
+              <div style={{ fontSize: 18, fontWeight: 'bold', color: '#B19EEF' }}>
+                {user.loyaltyPoints || 0} <span style={{ fontSize: 12, opacity: 0.8, fontWeight: 'normal' }}>puntos</span>
+              </div>
+            </div>
+          )}
+
           <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
             <SecuritySettings />
             <NotificationBell />

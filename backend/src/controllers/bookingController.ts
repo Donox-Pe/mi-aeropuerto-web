@@ -203,6 +203,25 @@ export async function approveBooking(req: Request, res: Response) {
       });
     }
 
+    // Lógica de Lealtad: Sumar puntos (1 punto por cada 10 pesos)
+    const pointsEarned = Math.floor((saved.finalPrice || saved.price || 0) / 10);
+    const currentUser = await tx.user.findUnique({ where: { id: saved.userId } });
+    
+    if (currentUser) {
+      const newPoints = currentUser.loyaltyPoints + pointsEarned;
+      let newTier = 'BRONZE';
+      if (newPoints > 5000) newTier = 'GOLD';
+      else if (newPoints > 1000) newTier = 'SILVER';
+
+      await tx.user.update({
+        where: { id: saved.userId },
+        data: { 
+          loyaltyPoints: newPoints,
+          loyaltyTier: newTier
+        }
+      });
+    }
+
     return saved;
   });
 

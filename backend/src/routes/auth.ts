@@ -9,15 +9,19 @@ import {
   get2FAStatus,
   forgotPassword,
   resetPassword,
+  getMe,
 } from '../controllers/authController.js';
 import { requireAuth } from '../middlewares/authMiddleware.js';
 import { authRateLimiter, resetRateLimiter } from '../middlewares/rateLimiter.js';
+import { validate } from '../middlewares/validate.js';
+import { loginSchema, registerSchema } from '../schemas/index.js';
 
 const router = Router();
 
 // Auth básica
-router.post('/login', authRateLimiter, login);
-router.post('/register', register);
+router.get('/me', requireAuth, getMe);
+router.post('/login', authRateLimiter, validate(loginSchema), login);
+router.post('/register', validate(registerSchema), register);
 
 // 2FA - requiere estar autenticado (excepto validate que es parte del login)
 router.post('/2fa/setup', requireAuth, setup2FA);

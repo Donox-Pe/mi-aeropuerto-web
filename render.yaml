@@ -11,7 +11,7 @@ services:
     plan: free
     rootDir: backend
     buildCommand: npm install && npx prisma generate && npm run build
-    startCommand: npx prisma db push --accept-data-loss && node dist/seed.js && npm start
+    startCommand: npx prisma db push && npm start
     envVars:
       - key: NODE_VERSION
         value: 20
@@ -23,6 +23,22 @@ services:
         generateValue: true
       - key: STRIPE_PUBLISHABLE_KEY
         value: pk_test_51TJ3dHRqnLYmNCfKB61EocDfid0InuKt8NbxrxZ0H7l4wze7aYoUKqhM1FJE4sBir2YPFJ7uuFmKfzKPhPFK8sax00oe21y3DI
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_USER
+        value: jahdielindonesia@gmail.com
+      - key: SMTP_PASS
+        value: oksychmkjhxryebr
+      - key: SMTP_FROM
+        value: jahdielindonesia@gmail.com
+      - key: SMTP_FROM_NAME
+        value: AeroAzteca
       - key: STRIPE_SUCCESS_URL
         value: http://aeroazteca.surge.sh/payment/success
       - key: STRIPE_CANCEL_URL

@@ -46,6 +46,7 @@ model flight {
   lugarArribo    String?
   puertaArribo   String?
   checkInTime    DateTime?
+  carbonFootprint Float?           @default(0)
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
   booking        booking[]
@@ -121,6 +122,8 @@ model user {
   lockedUntil       DateTime?
   lastLogin         DateTime?
   lastLogout        DateTime?
+  loyaltyPoints     Int            @default(0)
+  loyaltyTier       String         @default("BRONZE")
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
   booking           booking[]

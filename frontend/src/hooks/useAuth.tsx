@@ -16,11 +16,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
     const rawUser = localStorage.getItem('user');
-    if (rawUser) {
-      setUser(JSON.parse(rawUser));
+    
+    if (token) {
+      // Intentar refrescar datos desde el servidor para tener lo último (puntos, nivel, etc)
+      api.get<User>('/auth/me')
+        .then(res => {
+          setUser(res.data);
+          localStorage.setItem('user', JSON.stringify(res.data));
+        })
+        .catch(() => {
+          // Si falla (ej. token expirado), usar lo que hay en localStorage o desloguear
+          if (rawUser) setUser(JSON.parse(rawUser));
+        })
+        .finally(() => setLoading(false));
+    } else {
+      if (rawUser) setUser(JSON.parse(rawUser));
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   const value = useMemo<AuthContextType>(() => ({

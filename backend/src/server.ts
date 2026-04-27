@@ -21,6 +21,7 @@ import stripeRoutes from './routes/stripe.js';
 import notificationRoutes from './routes/notifications.js';
 import { handleWebhook } from './controllers/stripeController.js';
 import { apiRateLimiter } from './middlewares/rateLimiter.js';
+import { errorHandler } from './middlewares/errorHandler.js';
 
 dotenv.config();
 
@@ -75,10 +76,7 @@ export function createServer() {
   }
   
   // Manejador de errores global
-  app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-    console.error('SERVER ERROR:', err);
-    res.status(500).json({ message: 'Error interno del servidor', error: err.message });
-  });
+  app.use(errorHandler);
 
   return app;
 }

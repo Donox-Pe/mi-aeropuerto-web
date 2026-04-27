@@ -33,6 +33,8 @@ export type User = {
   email: string;
   fullName: string;
   role: 'ADMIN' | 'AGENT' | 'PASSENGER';
+  loyaltyPoints?: number;
+  loyaltyTier?: string;
   lastLogin?: string;
   lastLogout?: string;
 };
