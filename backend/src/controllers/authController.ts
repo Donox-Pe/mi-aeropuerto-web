@@ -241,11 +241,15 @@ export async function forgotPassword(req: Request, res: Response) {
 
   try {
     await sendPasswordResetEmail(user.email, code, user.fullName);
+    return res.json({ message: 'Si el email existe, recibirás un código de recuperación.' });
   } catch (err: any) {
     console.error('Error enviando email de recuperación:', err.message);
+    return res.status(500).json({ 
+      message: 'Error al enviar el correo electrónico', 
+      error: err.message,
+      details: 'Revisa la configuración de SMTP en las variables de entorno.'
+    });
   }
-
-  return res.json({ message: 'Si el email existe, recibirás un código de recuperación.' });
 }
 
 // ─── RESET PASSWORD ──────────────────────────────────────────
