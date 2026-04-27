@@ -11,9 +11,8 @@ export const registerSchema = z.object({
   body: z.object({
     email: z.string().email('Email inválido'),
     password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
-    firstName: z.string().min(2, 'Nombre demasiado corto'),
-    lastName: z.string().min(2, 'Apellido demasiado corto'),
-    phone: z.string().optional(),
+    fullName: z.string().min(2, 'Nombre demasiado corto'),
+    role: z.enum(['ADMIN', 'AGENT', 'PASSENGER']).optional(),
   }),
 });
 
