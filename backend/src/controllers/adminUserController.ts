@@ -12,7 +12,9 @@ export async function listUsers(_req: Request, res: Response) {
     role: u.role, 
     createdAt: u.createdAt,
     lastLogin: u.lastLogin,
-    lastLogout: u.lastLogout
+    lastLogout: u.lastLogout,
+    loyaltyTier: u.loyaltyTier,
+    loyaltyPoints: u.loyaltyPoints
   })));
 }
 

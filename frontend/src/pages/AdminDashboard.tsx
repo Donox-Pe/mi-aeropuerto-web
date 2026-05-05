@@ -721,6 +721,7 @@ type SimpleUser = {
   createdAt: string;
   lastLogin?: string;
   lastLogout?: string;
+  loyaltyTier?: string;
 };
 
 function Users() {
@@ -757,14 +758,30 @@ function Users() {
       <h2>Usuarios</h2>
       {loading ? <p className="muted">Cargando...</p> : (
         <div className="table">
-          <div className="thead" style={{ gridTemplateColumns: 'repeat(6, 1fr)' }}>
-            <div>Email</div><div>Nombre</div><div>Rol</div><div>Último Acceso</div><div>Última Salida</div><div>Acciones</div>
+          <div className="thead" style={{ gridTemplateColumns: 'repeat(7, 1fr)' }}>
+            <div>Email</div><div>Nombre</div><div>Rol</div><div>Nivel</div><div>Último Acceso</div><div>Última Salida</div><div>Acciones</div>
           </div>
           {users.map(u => (
-            <div className="trow" key={u.id} style={{ gridTemplateColumns: 'repeat(6, 1fr)' }}>
+            <div className="trow" key={u.id} style={{ gridTemplateColumns: 'repeat(7, 1fr)' }}>
               <div>{u.email}</div>
               <div style={{ fontWeight: 'bold' }}>{u.fullName}</div>
               <div><span className="badge">{u.role}</span></div>
+              <div>
+                {u.role === 'PASSENGER' ? (
+                  <span style={{ 
+                    padding: '2px 8px', 
+                    borderRadius: '20px', 
+                    fontSize: '12px', 
+                    fontWeight: 'bold', 
+                    color: 'white',
+                    background: u.loyaltyTier === 'GOLD' ? 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)' : 
+                               u.loyaltyTier === 'SILVER' ? 'linear-gradient(135deg, #94a3b8 0%, #475569 100%)' :
+                               'linear-gradient(135deg, #b45309 0%, #78350f 100%)' 
+                  }}>
+                    {u.loyaltyTier === 'GOLD' ? 'Oro' : u.loyaltyTier === 'SILVER' ? 'Plata' : 'Bronce'}
+                  </span>
+                ) : '-'}
+              </div>
               <div style={{ fontSize: '0.9em' }}>{u.lastLogin ? new Date(u.lastLogin).toLocaleString() : <span className="muted">Nunca</span>}</div>
               <div style={{ fontSize: '0.9em' }}>{u.lastLogout ? new Date(u.lastLogout).toLocaleString() : <span className="muted">-</span>}</div>
               <div style={{ display: 'flex', gap: 8 }}>
@@ -898,11 +915,51 @@ function TravelOffers() {
     return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(price);
   };
 
+  async function removeDuplicates() {
+    if (!confirm('¿Eliminar ofertas duplicadas? Se conservará la oferta más reciente por destino y descripción.')) return;
+    try {
+      const seen = new Set<string>();
+      const duplicates: number[] = [];
+      
+      const sorted = [...offers].sort((a, b) => b.id - a.id);
+      
+      for (const o of sorted) {
+        const key = `${o.destination.toLowerCase().trim()}|${o.description.toLowerCase().trim()}`;
+        if (seen.has(key)) {
+          duplicates.push(o.id);
+        } else {
+          seen.add(key);
+        }
+      }
+
+      if (duplicates.length === 0) {
+        alert('No se encontraron ofertas duplicadas.');
+        return;
+      }
+
+      setLoading(true);
+      for (const id of duplicates) {
+        await travelOffersApi.delete(id);
+      }
+      
+      alert(`Se eliminaron ${duplicates.length} ofertas duplicadas.`);
+      await load();
+    } catch (err: any) {
+      alert(err?.response?.data?.message || 'Error al eliminar duplicados');
+      await load();
+    }
+  }
+
   if (loading) return <div className="card">Cargando...</div>;
 
   return (
     <div className="card">
-      <h2>Gestión de Ofertas de Viaje</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <h2>Gestión de Ofertas de Viaje</h2>
+        <button className="btn-secondary" onClick={removeDuplicates} style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>
+          Eliminar Duplicados
+        </button>
+      </div>
       <div className="table">
         <div className="thead" style={{ gridTemplateColumns: 'repeat(6,minmax(120px,1fr))' }}>
           <div>Destino</div><div>Descripción</div><div>Precio Original</div><div>Precio Descuento</div><div>Descuento</div><div>Estado</div><div>Acciones</div>
