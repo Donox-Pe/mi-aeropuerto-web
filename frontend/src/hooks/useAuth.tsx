@@ -16,18 +16,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const rawUser = localStorage.getItem('user');
+    const token = sessionStorage.getItem('token');
+    const rawUser = sessionStorage.getItem('user');
     
     if (token) {
       // Intentar refrescar datos desde el servidor para tener lo último (puntos, nivel, etc)
       api.get<User>('/auth/me')
         .then(res => {
           setUser(res.data);
-          localStorage.setItem('user', JSON.stringify(res.data));
+          sessionStorage.setItem('user', JSON.stringify(res.data));
         })
         .catch(() => {
-          // Si falla (ej. token expirado), usar lo que hay en localStorage o desloguear
+          // Si falla (ej. token expirado), usar lo que hay en sessionStorage o desloguear
           if (rawUser) setUser(JSON.parse(rawUser));
         })
         .finally(() => setLoading(false));
@@ -43,14 +43,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loading,
     async login(email: string, password: string) {
       const { data } = await api.post<AuthResponse>('/auth/login', { email, password });
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      sessionStorage.setItem('token', data.token);
+      sessionStorage.setItem('user', JSON.stringify(data.user));
       setUser(data.user);
       return data.user;
     },
     logout() {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
       setUser(null);
     },
   }), [user, loading]);
