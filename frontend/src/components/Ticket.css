@@ -192,18 +192,42 @@
 }
 
 @media print {
-  .ticket {
-    margin: 0;
-    page-break-inside: avoid;
+  body * {
+    visibility: hidden;
   }
   
-  .ticket:before,
-  .ticket:after,
-  .ticket-content-wrapper:before,
-  .ticket-content-wrapper:after,
-  .left,
-  .right {
-    display: none;
+  .ticket-modal-overlay {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    display: block !important;
+    visibility: visible !important;
   }
-}
 
+  .ticket-modal-overlay * {
+    visibility: visible;
+  }
+
+  .ticket {
+    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 800px !important;
+    page-break-inside: avoid;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .ticket-print-hide {
+    display: none !important;
+  }
+
+  /* Optional: Remove fake corners if they look bad on print, 
+     but leaving them looks more like the real ticket. 
+     I will keep them for print if background is preserved, 
+     but hide the background wrapper. */
+}

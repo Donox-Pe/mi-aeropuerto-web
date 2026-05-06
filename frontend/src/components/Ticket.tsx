@@ -185,7 +185,7 @@ export default function Ticket({ booking, onClose }: TicketProps) {
   }
 
   return (
-    <div style={{
+    <div className="ticket-modal-overlay" style={{
       position: 'fixed',
       top: 0,
       left: 0,
@@ -206,7 +206,7 @@ export default function Ticket({ booking, onClose }: TicketProps) {
           <div className="right"></div>
           <div className="ticket-content-wrapper" style={{ position: 'relative' }}>
             {/* Botón de minimizar en la esquina superior derecha del ticket */}
-            <div style={{
+            <div className="ticket-print-hide" style={{
               position: 'absolute',
               top: 16,
               right: 120,
@@ -366,7 +366,7 @@ export default function Ticket({ booking, onClose }: TicketProps) {
               </div>
             </div>
 
-            <div style={{ marginTop: 20, textAlign: 'center' }}>
+            <div className="ticket-print-hide" style={{ marginTop: 20, textAlign: 'center' }}>
               <button
                 onClick={handlePrint}
                 style={{
