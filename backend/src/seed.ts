@@ -8,23 +8,26 @@ async function main() {
   const agentPass = await hashPassword('agent123');
   const passengerPass = await hashPassword('pass123');
 
+  // Auto-verificar usuarios existentes
+  await prisma.user.updateMany({ data: { isVerified: true } });
+
   // Usuarios base
   await prisma.user.upsert({
     where: { email: 'admin@airport.com' },
-    update: {},
-    create: { email: 'admin@airport.com', password: adminPass, fullName: 'Admin', role: 'ADMIN', updatedAt: new Date() },
+    update: { isVerified: true },
+    create: { email: 'admin@airport.com', password: adminPass, fullName: 'Admin', role: 'ADMIN', updatedAt: new Date(), isVerified: true },
   });
 
   await prisma.user.upsert({
     where: { email: 'agent@airport.com' },
-    update: {},
-    create: { email: 'agent@airport.com', password: agentPass, fullName: 'Agente', role: 'AGENT', updatedAt: new Date() },
+    update: { isVerified: true },
+    create: { email: 'agent@airport.com', password: agentPass, fullName: 'Agente', role: 'AGENT', updatedAt: new Date(), isVerified: true },
   });
 
   await prisma.user.upsert({
     where: { email: 'passenger@airport.com' },
-    update: {},
-    create: { email: 'passenger@airport.com', password: passengerPass, fullName: 'Pasajero', role: 'PASSENGER', updatedAt: new Date() },
+    update: { isVerified: true },
+    create: { email: 'passenger@airport.com', password: passengerPass, fullName: 'Pasajero', role: 'PASSENGER', updatedAt: new Date(), isVerified: true },
   });
 
   // pasajeros extra
@@ -37,8 +40,8 @@ async function main() {
   for (const p of extraPassengers) {
     await prisma.user.upsert({
       where: { email: p.email },
-      update: {},
-      create: { email: p.email, password: passengerPass, fullName: p.name, role: 'PASSENGER', updatedAt: new Date() },
+      update: { isVerified: true },
+      create: { email: p.email, password: passengerPass, fullName: p.name, role: 'PASSENGER', updatedAt: new Date(), isVerified: true },
     });
   }
 
