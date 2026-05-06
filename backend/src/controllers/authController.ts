@@ -23,11 +23,13 @@ export async function login(req: Request, res: Response) {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) return res.status(401).json({ message: 'Credenciales inválidas' });
 
+  /* 
   if (user.isVerified === false) {
     return res.status(403).json({ 
       message: 'Debes verificar tu correo electrónico antes de poder iniciar sesión. Revisa tu bandeja de entrada.' 
     });
   }
+  */
 
   // Verificar bloqueo por brute force
   if (user.lockedUntil && user.lockedUntil > new Date()) {
@@ -130,32 +132,20 @@ export async function register(req: Request, res: Response) {
       password: hashed, 
       fullName, 
       role: role ?? 'PASSENGER',
-      isVerified: false,
-      resetToken: code,
-      resetTokenExpiry: expiry
+      isVerified: true,
+      resetToken: null,
+      resetTokenExpiry: null
     } 
   });
 
-  // 4. Enviar correo de verificación
-  let emailSent = true;
-  let emailError = '';
+  // 4. Enviar correo de bienvenida (ya no es de verificación obligatoria)
   try {
     await sendVerificationEmail(email, code, fullName);
   } catch (err: any) {
-    console.error('Error enviando correo de verificación:', err);
-    emailSent = false;
-    emailError = err.message;
+    console.error('Error enviando correo:', err);
   }
 
-  return res.status(201).json({ 
-    id: created.id, 
-    requiresVerification: true, 
-    email,
-    emailSent,
-    message: emailSent 
-      ? 'Usuario registrado. Revisa tu correo.' 
-      : `Usuario registrado, pero el correo falló: ${emailError}. Intenta reenviarlo.`
-  });
+  return res.status(201).json({ id: created.id, requiresVerification: false, email });
 }
 
 // ─── VERIFY EMAIL ──────────────────────────────────────────────
