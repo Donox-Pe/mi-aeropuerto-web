@@ -49,7 +49,14 @@ function LoginInner() {
         navigate(from || rolePath, { replace: true });
       }
     } catch (err: any) {
-      setError(err?.response?.data?.message || (isRegister ? 'Error al registrarse' : 'Error al iniciar sesión'));
+      const msg = err?.response?.data?.message || (isRegister ? 'Error al registrarse' : 'Error al iniciar sesión');
+      setError(msg);
+      
+      // Si el error es por falta de verificación, permitir ir a la pantalla de verificación
+      if (err?.response?.status === 403 && !isRegister) {
+        setVerifyingEmail(email);
+        setRequiresVerification(true);
+      }
     }
   }
   async function handleVerify2FA(token: string) {
