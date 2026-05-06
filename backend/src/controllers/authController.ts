@@ -23,13 +23,11 @@ export async function login(req: Request, res: Response) {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) return res.status(401).json({ message: 'Credenciales inválidas' });
 
-  /* 
   if (user.isVerified === false) {
     return res.status(403).json({ 
       message: 'Debes verificar tu correo electrónico antes de poder iniciar sesión. Revisa tu bandeja de entrada.' 
     });
   }
-  */
 
   // Verificar bloqueo por brute force
   if (user.lockedUntil && user.lockedUntil > new Date()) {
@@ -102,6 +100,8 @@ export async function register(req: Request, res: Response) {
   const parsed = registerSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ message: 'Datos inválidos' });
   const { email, password, fullName, role } = parsed.data;
+  const code = generateResetCode();
+  const expiry = new Date(Date.now() + 15 * 60 * 1000); // 15 min
 
   // 1. Validar que el dominio del correo realmente exista (rechazar correos falsos)
   if (process.env.SKIP_MX_CHECK !== 'true') {
@@ -109,11 +109,11 @@ export async function register(req: Request, res: Response) {
       const domain = email.split('@')[1];
       const mxRecords = await dns.resolveMx(domain);
       if (!mxRecords || mxRecords.length === 0) {
-        return res.status(400).json({ message: 'El dominio del correo no puede recibir mensajes. Usa un correo real.' });
+        return res.status(400).json({ message: 'El dominio del correo no puede recibir mensajes o es inválido.' });
       }
     } catch (error) {
       console.warn('DNS MX check failed:', error);
-      return res.status(400).json({ message: 'El correo proporcionado parece ser falso o el dominio no responde.' });
+      return res.status(400).json({ message: 'El correo proporcionado parece ser falso o el dominio no existe.' });
     }
   }
 
@@ -123,8 +123,6 @@ export async function register(req: Request, res: Response) {
 
   // 3. Crear usuario inactivo y generar código
   const hashed = await hashPassword(password);
-  const code = generateResetCode();
-  const expiry = new Date(Date.now() + 15 * 60 * 1000); // 15 min
   
   const created = await prisma.user.create({ 
     data: { 
@@ -132,20 +130,32 @@ export async function register(req: Request, res: Response) {
       password: hashed, 
       fullName, 
       role: role ?? 'PASSENGER',
-      isVerified: true,
-      resetToken: null,
-      resetTokenExpiry: null
+      isVerified: false,
+      resetToken: code,
+      resetTokenExpiry: expiry
     } 
   });
 
-  // 4. Enviar correo de bienvenida (ya no es de verificación obligatoria)
+  // 4. Enviar correo de verificación
+  let emailSent = true;
+  let emailError = null;
   try {
     await sendVerificationEmail(email, code, fullName);
   } catch (err: any) {
-    console.error('Error enviando correo:', err);
+    console.error('Error enviando correo de verificación:', err);
+    emailSent = false;
+    emailError = err.message;
   }
 
-  return res.status(201).json({ id: created.id, requiresVerification: false, email });
+  return res.status(201).json({ 
+    id: created.id, 
+    requiresVerification: true, 
+    email,
+    emailSent,
+    message: emailSent 
+      ? '¡Cuenta creada! Revisa tu correo para activarla.' 
+      : `Cuenta creada pero falló el envío del correo: ${emailError}. Usa el botón de reenviar en el login.`
+  });
 }
 
 // ─── VERIFY EMAIL ──────────────────────────────────────────────
@@ -216,6 +226,33 @@ export async function resendVerification(req: Request, res: Response) {
     return res.status(500).json({ 
       message: 'Error al enviar el correo. Por favor intenta más tarde.',
       error: err.message
+    });
+  }
+}
+
+// ─── TEST EMAIL (Diagnostic) ──────────────────────────────────
+export async function testEmail(req: Request, res: Response) {
+  const { to } = req.body;
+  if (!to) return res.status(400).json({ message: 'Se requiere el campo "to"' });
+
+  try {
+    const info = await sendVerificationEmail(to, '123456', 'Usuario de Prueba');
+    return res.json({ 
+      ok: true, 
+      message: 'Correo de prueba enviado con éxito.', 
+      info 
+    });
+  } catch (error: any) {
+    return res.status(500).json({ 
+      ok: false, 
+      message: 'Error al enviar el correo de prueba.', 
+      error: error.message,
+      details: {
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
+        user: process.env.SMTP_USER,
+        secure: process.env.SMTP_SECURE
+      }
     });
   }
 }
