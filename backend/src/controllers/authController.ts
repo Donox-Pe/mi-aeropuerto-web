@@ -102,14 +102,17 @@ export async function register(req: Request, res: Response) {
   const { email, password, fullName, role } = parsed.data;
 
   // 1. Validar que el dominio del correo realmente exista (rechazar correos falsos)
-  try {
-    const domain = email.split('@')[1];
-    const mxRecords = await dns.resolveMx(domain);
-    if (!mxRecords || mxRecords.length === 0) {
-      return res.status(400).json({ message: 'El dominio del correo no puede recibir mensajes. Usa un correo real.' });
+  if (process.env.SKIP_MX_CHECK !== 'true') {
+    try {
+      const domain = email.split('@')[1];
+      const mxRecords = await dns.resolveMx(domain);
+      if (!mxRecords || mxRecords.length === 0) {
+        return res.status(400).json({ message: 'El dominio del correo no puede recibir mensajes. Usa un correo real.' });
+      }
+    } catch (error) {
+      console.warn('DNS MX check failed:', error);
+      return res.status(400).json({ message: 'El correo proporcionado parece ser falso o el dominio no responde.' });
     }
-  } catch (error) {
-    return res.status(400).json({ message: 'El correo proporcionado es falso o el dominio no existe.' });
   }
 
   // 2. Verificar si ya está registrado
@@ -134,14 +137,25 @@ export async function register(req: Request, res: Response) {
   });
 
   // 4. Enviar correo de verificación
+  let emailSent = true;
+  let emailError = '';
   try {
     await sendVerificationEmail(email, code, fullName);
   } catch (err: any) {
     console.error('Error enviando correo de verificación:', err);
-    // Aunque falle el correo, retornamos que requiere verificación
+    emailSent = false;
+    emailError = err.message;
   }
 
-  return res.status(201).json({ id: created.id, requiresVerification: true, email });
+  return res.status(201).json({ 
+    id: created.id, 
+    requiresVerification: true, 
+    email,
+    emailSent,
+    message: emailSent 
+      ? 'Usuario registrado. Revisa tu correo.' 
+      : `Usuario registrado, pero el correo falló: ${emailError}. Intenta reenviarlo.`
+  });
 }
 
 // ─── VERIFY EMAIL ──────────────────────────────────────────────
