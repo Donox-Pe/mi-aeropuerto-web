@@ -1,35 +1,51 @@
 import nodemailer from 'nodemailer';
 
-const {
-  SMTP_HOST,
-  SMTP_PORT,
-  SMTP_SECURE,
-  SMTP_USER,
-  SMTP_PASS,
-  SMTP_FROM,
-  SMTP_FROM_NAME,
-} = process.env;
+let transporter: any = null;
 
-const transporter = nodemailer.createTransport({
-  host: SMTP_HOST,
-  port: Number(SMTP_PORT || 465),
-  secure: SMTP_PORT === '465' || SMTP_SECURE === 'true', // True para 465, False para 587
-  auth: SMTP_USER && SMTP_PASS ? { user: SMTP_USER, pass: SMTP_PASS } : undefined,
-  tls: {
-    rejectUnauthorized: false // Ayuda con problemas de certificados en algunos entornos
+function getTransporter() {
+  if (transporter) return transporter;
+
+  const {
+    SMTP_HOST,
+    SMTP_PORT,
+    SMTP_SECURE,
+    SMTP_USER,
+    SMTP_PASS,
+  } = process.env;
+
+  if (!SMTP_HOST) {
+    console.warn('⚠️ SMTP_HOST no definido. El servicio de correo no funcionará.');
+    return null;
   }
-});
+
+  transporter = nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: Number(SMTP_PORT || 465),
+    secure: SMTP_PORT === '465' || SMTP_SECURE === 'true',
+    auth: SMTP_USER && SMTP_PASS ? { user: SMTP_USER, pass: SMTP_PASS } : undefined,
+    tls: {
+      rejectUnauthorized: false
+    }
+  });
+
+  return transporter;
+}
 
 type Attachment = { filename: string; content: Buffer };
 
 export async function sendTicketEmail(to: string, subject: string, html: string, attachments?: Attachment[]) {
+  const { SMTP_HOST, SMTP_USER, SMTP_PASS, SMTP_FROM, SMTP_FROM_NAME } = process.env;
+
   if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS || !SMTP_FROM) {
     console.error('❌ Error de configuración SMTP:', { SMTP_HOST, SMTP_USER, hasPass: !!SMTP_PASS, SMTP_FROM });
-    throw new Error('SMTP no configurado. Revisa variables SMTP_* en .env');
+    throw new Error('SMTP no configurado correctamente en el servidor.');
   }
 
+  const transport = getTransporter();
+  if (!transport) throw new Error('No se pudo inicializar el transportador SMTP.');
+
   try {
-    const info = await transporter.sendMail({
+    const info = await transport.sendMail({
       from: SMTP_FROM_NAME ? `${SMTP_FROM_NAME} <${SMTP_FROM}>` : SMTP_FROM,
       to,
       subject,

@@ -177,6 +177,45 @@ export async function verifyEmail(req: Request, res: Response) {
   return res.json({ message: 'Cuenta verificada correctamente. Ahora puedes iniciar sesión.' });
 }
 
+// ─── RESEND VERIFICATION ──────────────────────────────────────
+const resendSchema = z.object({ email: z.string().email() });
+
+export async function resendVerification(req: Request, res: Response) {
+  const parsed = resendSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ message: 'Email inválido' });
+
+  const { email } = parsed.data;
+  const user = await prisma.user.findUnique({ where: { email } });
+
+  if (!user) {
+    // Por seguridad, no revelamos si el email no existe
+    return res.json({ message: 'Si el correo está registrado, recibirás un nuevo código.' });
+  }
+
+  if (user.isVerified) {
+    return res.status(400).json({ message: 'Esta cuenta ya ha sido verificada.' });
+  }
+
+  const code = generateResetCode();
+  const expiry = new Date(Date.now() + 15 * 60 * 1000);
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { resetToken: code, resetTokenExpiry: expiry },
+  });
+
+  try {
+    await sendVerificationEmail(email, code, user.fullName);
+    return res.json({ message: 'Se ha enviado un nuevo código de verificación.' });
+  } catch (err: any) {
+    console.error('Error re-enviando correo de verificación:', err);
+    return res.status(500).json({ 
+      message: 'Error al enviar el correo. Por favor intenta más tarde.',
+      error: err.message
+    });
+  }
+}
+
 // ─── 2FA SETUP ───────────────────────────────────────────────
 export async function setup2FA(req: Request, res: Response) {
   if (!req.user) return res.status(401).json({ message: 'No autorizado' });

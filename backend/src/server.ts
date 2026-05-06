@@ -23,7 +23,6 @@ import { handleWebhook } from './controllers/stripeController.js';
 import { apiRateLimiter } from './middlewares/rateLimiter.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 
-dotenv.config();
 
 export function createServer() {
   const app = express();

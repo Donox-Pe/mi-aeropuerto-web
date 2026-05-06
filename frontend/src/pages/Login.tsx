@@ -106,9 +106,28 @@ function LoginInner() {
               required 
             />
             <button type="submit" className="btn-primary">Verificar Cuenta</button>
+            
             <button 
               type="button" 
               className="btn-secondary" 
+              style={{ marginTop: 8 }}
+              onClick={async () => {
+                setError(null);
+                try {
+                  const { data } = await api.post('/auth/resend-verification', { email: verifyingEmail });
+                  alert(data.message);
+                } catch (err: any) {
+                  setError(err?.response?.data?.message || 'Error al reenviar el código');
+                }
+              }}
+            >
+              Reenviar código
+            </button>
+
+            <button 
+              type="button" 
+              className="btn-link" 
+              style={{ marginTop: 16, color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13 }}
               onClick={() => { setRequiresVerification(false); setIsRegister(true); }}
             >
               Regresar al registro

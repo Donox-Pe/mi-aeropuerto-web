@@ -97,6 +97,24 @@ button {
     cursor: pointer
 }
 
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 14px;
+    padding: 4px;
+}
+
+.btn-link:hover {
+    color: var(--text);
+}
+
 .error-chip {
     background: #7f1d1d;
     color: #fecaca;
