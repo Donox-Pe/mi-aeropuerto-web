@@ -80,6 +80,8 @@ export async function login(req: Request, res: Response) {
   });
 }
 
+import dns from 'dns/promises';
+
 // ─── REGISTER ────────────────────────────────────────────────
 const registerSchema = z.object({
   email: z.string().email(),
@@ -92,8 +94,23 @@ export async function register(req: Request, res: Response) {
   const parsed = registerSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ message: 'Datos inválidos' });
   const { email, password, fullName, role } = parsed.data;
+
+  // 1. Validar que el dominio del correo realmente exista (rechazar correos falsos)
+  try {
+    const domain = email.split('@')[1];
+    const mxRecords = await dns.resolveMx(domain);
+    if (!mxRecords || mxRecords.length === 0) {
+      return res.status(400).json({ message: 'El dominio del correo no puede recibir mensajes. Usa un correo real.' });
+    }
+  } catch (error) {
+    return res.status(400).json({ message: 'El correo proporcionado es falso o el dominio no existe.' });
+  }
+
+  // 2. Verificar si ya está registrado
   const exists = await prisma.user.findUnique({ where: { email } });
-  if (exists) return res.status(409).json({ message: 'Email ya registrado' });
+  if (exists) return res.status(409).json({ message: 'El email ya está registrado' });
+
+  // 3. Crear usuario
   const hashed = await hashPassword(password);
   const created = await prisma.user.create({ data: { email, password: hashed, fullName, role: role ?? 'PASSENGER' } });
   return res.status(201).json({ id: created.id });
