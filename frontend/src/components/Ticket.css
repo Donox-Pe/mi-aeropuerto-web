@@ -201,12 +201,14 @@
     left: 0 !important;
     top: 0 !important;
     width: 100% !important;
-    height: 100% !important;
+    height: auto !important;
+    min-height: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
     background: transparent !important;
     display: block !important;
     visibility: visible !important;
+    overflow: visible !important;
   }
 
   .ticket-modal-overlay * {
@@ -214,12 +216,15 @@
   }
 
   .ticket {
+    position: relative !important;
     margin: 0 auto !important;
     width: 100% !important;
-    max-width: 800px !important;
+    max-width: none !important;
+    height: auto !important;
     page-break-inside: avoid;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    transform: none !important;
   }
 
   .ticket-print-hide {
