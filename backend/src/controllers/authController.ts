@@ -4,7 +4,7 @@ import { comparePassword, hashPassword } from '../utils/hash.js';
 import { signToken } from '../utils/jwt.js';
 import { z } from 'zod';
 import { generateTOTPSecret, generateQRDataURL, verifyTOTPToken } from '../services/twoFactorService.js';
-import { generateResetCode, sendPasswordResetEmail } from '../services/passwordResetService.js';
+import { generateResetCode, sendPasswordResetEmail, sendVerificationEmail } from '../services/passwordResetService.js';
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCK_DURATION_MS = 15 * 60 * 1000; // 15 min
@@ -22,6 +22,12 @@ export async function login(req: Request, res: Response) {
   const { email, password } = parsed.data;
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) return res.status(401).json({ message: 'Credenciales inválidas' });
+
+  if (user.isVerified === false) {
+    return res.status(403).json({ 
+      message: 'Debes verificar tu correo electrónico antes de poder iniciar sesión. Revisa tu bandeja de entrada.' 
+    });
+  }
 
   // Verificar bloqueo por brute force
   if (user.lockedUntil && user.lockedUntil > new Date()) {
@@ -110,10 +116,65 @@ export async function register(req: Request, res: Response) {
   const exists = await prisma.user.findUnique({ where: { email } });
   if (exists) return res.status(409).json({ message: 'El email ya está registrado' });
 
-  // 3. Crear usuario
+  // 3. Crear usuario inactivo y generar código
   const hashed = await hashPassword(password);
-  const created = await prisma.user.create({ data: { email, password: hashed, fullName, role: role ?? 'PASSENGER' } });
-  return res.status(201).json({ id: created.id });
+  const code = generateResetCode();
+  const expiry = new Date(Date.now() + 15 * 60 * 1000); // 15 min
+  
+  const created = await prisma.user.create({ 
+    data: { 
+      email, 
+      password: hashed, 
+      fullName, 
+      role: role ?? 'PASSENGER',
+      isVerified: false,
+      resetToken: code,
+      resetTokenExpiry: expiry
+    } 
+  });
+
+  // 4. Enviar correo de verificación
+  try {
+    await sendVerificationEmail(email, code, fullName);
+  } catch (err: any) {
+    console.error('Error enviando correo de verificación:', err);
+    // Aunque falle el correo, retornamos que requiere verificación
+  }
+
+  return res.status(201).json({ id: created.id, requiresVerification: true, email });
+}
+
+// ─── VERIFY EMAIL ──────────────────────────────────────────────
+const verifyEmailSchema = z.object({
+  email: z.string().email(),
+  code: z.string().length(6),
+});
+
+export async function verifyEmail(req: Request, res: Response) {
+  const parsed = verifyEmailSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ message: 'Datos inválidos' });
+
+  const { email, code } = parsed.data;
+  const user = await prisma.user.findUnique({ where: { email } });
+
+  if (!user || user.resetToken !== code) {
+    return res.status(400).json({ message: 'Código inválido o incorrecto.' });
+  }
+
+  if (!user.resetTokenExpiry || user.resetTokenExpiry < new Date()) {
+    return res.status(400).json({ message: 'El código ha expirado. Por favor solicita uno nuevo.' });
+  }
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      isVerified: true,
+      resetToken: null,
+      resetTokenExpiry: null,
+    },
+  });
+
+  return res.json({ message: 'Cuenta verificada correctamente. Ahora puedes iniciar sesión.' });
 }
 
 // ─── 2FA SETUP ───────────────────────────────────────────────

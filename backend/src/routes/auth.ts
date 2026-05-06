@@ -10,6 +10,7 @@ import {
   forgotPassword,
   resetPassword,
   getMe,
+  verifyEmail,
 } from '../controllers/authController.js';
 import { requireAuth } from '../middlewares/authMiddleware.js';
 import { authRateLimiter, resetRateLimiter } from '../middlewares/rateLimiter.js';
@@ -22,6 +23,7 @@ const router = Router();
 router.get('/me', requireAuth, getMe);
 router.post('/login', authRateLimiter, validate(loginSchema), login);
 router.post('/register', validate(registerSchema), register);
+router.post('/verify-email', verifyEmail);
 
 // 2FA - requiere estar autenticado (excepto validate que es parte del login)
 router.post('/2fa/setup', requireAuth, setup2FA);

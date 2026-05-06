@@ -41,3 +41,30 @@ export async function sendPasswordResetEmail(email: string, code: string, fullNa
 
   await sendTicketEmail(email, '🔐 Código de Recuperación - AeroAzteca', html);
 }
+
+/**
+ * Envía email de verificación de cuenta al registrarse.
+ */
+export async function sendVerificationEmail(email: string, code: string, fullName: string): Promise<void> {
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px;">
+      <div style="background: linear-gradient(135deg, #1a1a2e, #16213e); padding: 30px; border-radius: 12px; color: white; text-align: center;">
+        <h2 style="margin: 0 0 10px; color: #10b981;">✈️ AeroAzteca</h2>
+        <p style="margin: 0; opacity: 0.8;">Verificación de Cuenta</p>
+      </div>
+      <div style="padding: 24px; background: #f8f9fa; border-radius: 0 0 12px 12px;">
+        <p>¡Bienvenido/a <strong>${fullName}</strong>!</p>
+        <p>Para completar tu registro y verificar que este correo es real, usa el siguiente código de confirmación:</p>
+        <div style="background: #111827; color: #10b981; font-size: 32px; font-weight: bold; text-align: center; padding: 16px; border-radius: 8px; letter-spacing: 8px; margin: 20px 0;">
+          ${code}
+        </div>
+        <p style="color: #666; font-size: 14px;">
+          ⏰ Este código expira en <strong>15 minutos</strong>.<br>
+          Si no te registraste en AeroAzteca, por favor ignora este correo.
+        </p>
+      </div>
+    </div>
+  `;
+
+  await sendTicketEmail(email, '✅ Confirma tu cuenta - AeroAzteca', html);
+}
