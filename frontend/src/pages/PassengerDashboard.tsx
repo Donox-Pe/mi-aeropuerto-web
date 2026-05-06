@@ -20,17 +20,18 @@ function Layout({ children }: { children: React.ReactNode }) {
           <Link to="/passenger/flights">Vuelos Disponibles</Link>
           <Link to="/passenger/my-flights">Mis Vuelos / Estado</Link>
         </nav>
-        <div className="userbox">
-          <div className="name">{user?.fullName}</div>
+        <div className="userbox" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+          <div className="name" style={{ wordBreak: 'break-word', fontWeight: '500', marginBottom: '4px' }}>{user?.fullName}</div>
           
           {/* Badge de Lealtad Premium */}
           {user?.role === 'PASSENGER' && (
             <div style={{
-              margin: '12px 0',
+              margin: '8px 0',
               padding: '12px',
               background: 'rgba(255,255,255,0.05)',
               borderRadius: '12px',
-              border: '1px solid rgba(255,255,255,0.1)'
+              border: '1px solid rgba(255,255,255,0.1)',
+              width: '100%'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                 <span style={{ fontSize: 12, opacity: 0.6, textTransform: 'uppercase', letterSpacing: 1 }}>Nivel</span>
@@ -53,9 +54,11 @@ function Layout({ children }: { children: React.ReactNode }) {
             </div>
           )}
 
-          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-            <SecuritySettings />
-            <NotificationBell />
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center', justifyContent: 'space-between', width: '100%', marginTop: 'auto' }}>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <SecuritySettings />
+              <NotificationBell />
+            </div>
             <button className="btn-secondary" onClick={logout}>Salir</button>
           </div>
         </div>
