@@ -1,4 +1,14 @@
-:root {
+:root, .light {
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --muted: #64748b;
+    --text: #0f172a;
+    --primary: #3b82f6;
+    --primary-600: #2563eb;
+    --border: #e2e8f0;
+}
+
+.dark {
     --bg: #0a0a0a;
     --card: #141414;
     --muted: #a3a3a3;
@@ -6,6 +16,11 @@
     --primary: #3b82f6;
     --primary-600: #2563eb;
     --border: #262626;
+}
+
+body {
+    background-color: var(--bg);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 * {

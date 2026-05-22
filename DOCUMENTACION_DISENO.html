@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación Técnica - Sistema Aeroportuario</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --accent: #d32f2f;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+            letter-spacing: -0.025em;
+        }
+
+        header p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+        }
+
+        section {
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 1.5rem;
+            margin-bottom: 3rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.5rem;
+            display: inline-block;
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            margin: 2rem 0 1rem;
+            color: var(--text-main);
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+        }
+
+        .diagram-container {
+            background: #fdfdfd;
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            margin: 2rem 0;
+            overflow-x: auto;
+            display: flex;
+            justify-content: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: #f1f5f9;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .summary-box {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-left: 5px solid var(--primary);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 0.5rem;
+        }
+
+        .summary-box strong {
+            display: block;
+            font-size: 1.1rem;
+            color: var(--primary-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-box ul {
+            margin-top: 1rem;
+            padding-left: 1.2rem;
+        }
+
+        .summary-box li {
+            margin-bottom: 0.4rem;
+        }
+
+        .badge {
+            background: var(--primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .note {
+            background: #eff6ff;
+            border-left: 4px solid var(--primary);
+            padding: 1rem 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 0.5rem 0.5rem 0;
+        }
+
+        footer {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Arquitectura del Sistema Aeroportuario</h1>
+            <p>Diseño Técnico, Modelado de Datos y Procesos Operativos</p>
+        </header>
+
+        <section>
+            <h2>1. Modelo de Datos Normalizado</h2>
+            <div class="summary-box">
+                <strong>Resumen del Modelo:</strong>
+                <p>El sistema implementa una arquitectura de base de datos relacional diseñada para soportar operaciones críticas de gestión aeroportuaria sin redundancias. Los puntos clave incluyen:</p>
+                <ul>
+                    <li><strong>Normalización (3FN):</strong> Se han separado las entidades para asegurar que cada dato se almacene en un solo lugar, facilitando actualizaciones consistentes.</li>
+                    <li><strong>Integridad Referencial:</strong> Relaciones estrictas entre <code>Users</code>, <code>Flights</code> y <code>Bookings</code> mediante llaves foráneas para evitar registros huérfanos.</li>
+                    <li><strong>Seguridad de Datos:</strong> Almacenamiento segregado de secretos para 2FA y contraseñas hasheadas.</li>
+                    <li><strong>Gestión de Inventario:</strong> Control en tiempo real de la ocupación de asientos vinculado directamente a la tabla de vuelos.</li>
+                </ul>
+            </div>
+            
+            <div class="diagram-container">
+                <div class="mermaid">
+                    erDiagram
+                        USER ||--o{ BOOKING : "realiza"
+                        USER ||--o{ NOTIFICATION : "recibe"
+                        FLIGHT ||--o{ BOOKING : "contiene"
+                        FLIGHT ||--o{ SEAT : "tiene"
+                        BOOKING ||--o{ SEAT : "asigna"
+                        BOOKING ||--o| PAYMENT : "genera"
+                        TRAVEL_OFFER ||--o{ BOOKING : "aplica_a"
+
+                        USER {
+                            int id PK
+                            string email UK
+                            enum role
+                            int loyaltyPoints
+                            boolean isVerified
+                        }
+
+                        FLIGHT {
+                            int id PK
+                            string code UK
+                            string origin
+                            string destination
+                            int seatsAvailable
+                        }
+
+                        BOOKING {
+                            int id PK
+                            enum status
+                            float finalPrice
+                            enum paymentMethod
+                        }
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>2. Diagramas de Secuencia</h2>
+            <div class="summary-box">
+                <strong>Resumen de Procesos:</strong>
+                <p>Los diagramas de secuencia ilustran cómo fluye la información entre las capas de la aplicación (Frontend, API, Base de Datos y Servicios Externos):</p>
+                <ul>
+                    <li><strong>Flujo de Autenticación:</strong> Implementa una verificación en dos pasos (2FA), asegurando que el acceso solo se conceda tras validar credenciales y un código dinámico (TOTP).</li>
+                    <li><strong>Flujo de Reserva:</strong> Define un proceso asíncrono donde la solicitud del pasajero queda en espera (PENDING) hasta que un agente o el sistema de pagos la valide, disparando notificaciones automáticas en cada cambio de estado.</li>
+                </ul>
+            </div>
+
+            <h3>Autenticación con 2FA</h3>
+            <div class="diagram-container">
+                <div class="mermaid">
+                    sequenceDiagram
+                        autonumber
+                        participant U as Usuario
+                        participant AC as AuthController
+                        participant DB as Database
+                        participant TS as 2FA Service
+
+                        U->>AC: Login(email, password)
+                        AC->>DB: Buscar Usuario
+                        DB-->>AC: Datos Usuario
+                        
+                        alt 2FA Habilitado
+                            AC-->>U: Solicitar OTP
+                            U->>AC: Enviar Código
+                            AC->>TS: Validar TOTP
+                            TS-->>AC: Válido
+                        end
+
+                        AC-->>U: Retornar JWT + Perfil
+                </div>
+            </div>
+
+            <h3>Proceso de Reserva</h3>
+            <div class="diagram-container">
+                <div class="mermaid">
+                    sequenceDiagram
+                        autonumber
+                        participant P as Pasajero
+                        participant BC as BookingController
+                        participant DB as Database
+                        participant A as Agente
+                        participant NS as Notification
+
+                        P->>BC: Crear Reserva
+                        BC->>DB: Estado: PENDING
+                        BC->>NS: Notificar Agentes
+                        A->>BC: Aprobar Reserva
+                        BC->>DB: Actualizar Inventario (APPROVED)
+                        BC->>NS: Enviar Ticket
+                        NS-->>P: Email de Confirmación
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>3. Interfaces vs Casos de Uso</h2>
+            <div class="summary-box">
+                <strong>Resumen de Interfaces:</strong>
+                <p>Cada interfaz del frontend ha sido diseñada para responder a uno o más casos de uso de negocio específicos, garantizando una experiencia de usuario orientada a tareas:</p>
+                <ul>
+                    <li><strong>Pasajeros:</strong> Interfaces simplificadas para autoservicio (comprar, buscar, consultar).</li>
+                    <li><strong>Personal (Agentes/Admin):</strong> Dashboards de alta densidad de información para toma de decisiones rápida y gestión de inventario.</li>
+                    <li><strong>Sistema:</strong> Capas de comunicación invisible (emails, push) que mantienen al usuario informado sin intervención manual.</li>
+                </ul>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Interfaz</th>
+                        <th>Caso de Uso Asociado</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Login / Registro</strong></td>
+                        <td>Acceso y Seguridad</td>
+                        <td><span class="badge">Implementado</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Panel de Pasajero</strong></td>
+                        <td>Reservas y Lealtad</td>
+                        <td><span class="badge">Implementado</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Panel de Agente</strong></td>
+                        <td>Aprobaciones y Control</td>
+                        <td><span class="badge">Implementado</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Panel de Admin</strong></td>
+                        <td>Gestión Global</td>
+                        <td><span class="badge">Implementado</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 AeroAzteca System Documentation</p>
+        </footer>
+    </div>
+
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'neutral'
+        });
+    </script>
+</body>
+</html>

@@ -4,6 +4,8 @@ import { useAuth } from '../hooks/useAuth';
 import { api } from '../services/api';
 import TwoFactorLogin from '../components/TwoFactorLogin';
 
+import Plane3D from '../components/Plane3D';
+
 function LoginInner() {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
@@ -86,7 +88,8 @@ function LoginInner() {
   }
 
   return (
-    <div className="auth-wrapper">
+    <div className="auth-wrapper" style={{ position: 'relative' }}>
+      <Plane3D />
       {requires2fa && (
         <TwoFactorLogin 
           onVerify={handleVerify2FA} 
