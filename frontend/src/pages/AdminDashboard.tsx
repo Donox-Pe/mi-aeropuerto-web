@@ -1,47 +1,146 @@
 import { Link, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { gsap } from 'gsap';
 import { api, adminUsersApi, flightsApi, CreateUserDto, UpdateUserDto, CreateFlightDto, UpdateFlightDto, adminFlightsApi, AdminFlightWithCount, PassengerLite, Flight, seatsApi, Seat, paymentsApi, Payment, pricingApi, PriceCalculation, travelOffersApi, TravelOffer, CreateTravelOfferDto, UpdateTravelOfferDto, bookingsApi, Booking } from '../services/api';
 import NotificationBell from '../components/NotificationBell';
 import SecuritySettings from '../components/SecuritySettings';
+import PageTransition from '../components/PageTransition';
 
 function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
+  const sidebarRef = useRef<HTMLElement>(null);
+  const brandRef = useRef<HTMLDivElement>(null);
+  const linksRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (sidebarRef.current) {
+      gsap.fromTo(sidebarRef.current,
+        { x: -30, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.6, ease: 'power3.out' }
+      );
+    }
+    if (brandRef.current) {
+      gsap.fromTo(brandRef.current,
+        { opacity: 0, y: -10 },
+        { opacity: 1, y: 0, duration: 0.5, delay: 0.2, ease: 'power2.out' }
+      );
+    }
+    if (linksRef.current) {
+      gsap.fromTo(linksRef.current.children,
+        { opacity: 0, x: -16 },
+        { opacity: 1, x: 0, duration: 0.4, stagger: 0.07, delay: 0.3, ease: 'power2.out' }
+      );
+    }
+  }, []);
+
   return (
     <div className="layout">
-      <aside className="sidebar">
-        <div className="brand">Admin</div>
-        <nav>
-          <Link to="/admin">Inicio</Link>
-          <Link to="/admin/users">Usuarios</Link>
-          <Link to="/admin/flights">Vuelos</Link>
-          <Link to="/admin/pending">Reservas pendientes</Link>
-          <Link to="/admin/offers">Ofertas</Link>
-          <Link to="/admin/payments">Pagos</Link>
+      <aside className="sidebar" ref={sidebarRef}>
+        <div className="brand" ref={brandRef}>✈ AEROAZTECA</div>
+        <nav ref={linksRef as any}>
+          <Link to="/admin">🏠 Inicio</Link>
+          <Link to="/admin/users">👥 Usuarios</Link>
+          <Link to="/admin/flights">✈️ Vuelos</Link>
+          <Link to="/admin/pending">⏳ Reservas pendientes</Link>
+          <Link to="/admin/offers">🎁 Ofertas</Link>
+          <Link to="/admin/payments">💳 Pagos</Link>
         </nav>
-        <div className="userbox">
-          <div className="name">{user?.fullName}</div>
-          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+        <div className="userbox" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#60a5fa', marginBottom: 4 }}>{user?.fullName}</div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 10, letterSpacing: '0.05em' }}>ADMINISTRADOR</div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <SecuritySettings />
             <NotificationBell />
-            <button className="btn-secondary" onClick={logout}>Salir</button>
+            <button className="btn-secondary" onClick={logout} style={{ fontSize: 12, padding: '6px 10px' }}>Salir</button>
           </div>
         </div>
       </aside>
-      <main className="content">{children}</main>
+      <main className="content">
+        <PageTransition>{children}</PageTransition>
+      </main>
     </div>
   );
 }
 
 function Home() {
   const { user } = useAuth();
+  const [stats, setStats] = useState<{ users: number; flights: number; bookings: number; revenue: number } | null>(null);
+  const cardsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    Promise.all([
+      adminUsersApi.list(),
+      flightsApi.list(),
+      paymentsApi.stats(),
+    ]).then(([users, flights, payStats]) => {
+      setStats({
+        users: (users as any[]).length,
+        flights: (flights as any[]).length,
+        bookings: payStats.total,
+        revenue: payStats.totalAmount,
+      });
+    }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (stats && cardsRef.current) {
+      gsap.fromTo(
+        cardsRef.current.children,
+        { opacity: 0, y: 30, scale: 0.95 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.1, ease: 'power3.out' }
+      );
+    }
+  }, [stats]);
+
   return (
-    <div className="card-fancy card">
-      <h2>BIENVENIDO ADMINISTRADOR {user?.fullName ?? ''} AL PANEL DE ADMINISTRACIÓN DE VUELOS </h2>
-      <p>
-        Desde este panel puedes gestionar usuarios (crear, editar roles y eliminar), administrar vuelos
-        (crear, actualizar, eliminar) y controlar pasajeros por vuelo (asignar o quitar) con un máximo de 200 por vuelo.
-      </p>
+    <div>
+      {/* Hero Banner */}
+      <div className="hero" style={{ marginBottom: 28, textAlign: 'center' }}>
+        <div>
+          <div style={{ fontSize: 12, letterSpacing: '0.25em', color: '#60a5fa', fontWeight: 700, marginBottom: 8, textTransform: 'uppercase' }}>Panel de Control</div>
+          <h2 style={{ margin: 0, fontSize: 24, fontWeight: 900 }}>
+            Bienvenido, <span style={{ background: 'linear-gradient(90deg,#60a5fa,#a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{user?.fullName}</span>
+          </h2>
+          <p style={{ color: 'rgba(255,255,255,0.5)', margin: '8px 0 0', fontSize: 14 }}>Gestión completa de AeroAzteca</p>
+        </div>
+      </div>
+
+      {/* Stat cards */}
+      <div ref={cardsRef} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 16, marginBottom: 28 }}>
+        <div className="stat-card stat-blue">
+          <span className="stat-card-icon">👥</span>
+          <div className="stat-card-label">Usuarios</div>
+          <div className="stat-card-value">{stats?.users ?? '—'}</div>
+        </div>
+        <div className="stat-card stat-green">
+          <span className="stat-card-icon">✈️</span>
+          <div className="stat-card-label">Vuelos</div>
+          <div className="stat-card-value">{stats?.flights ?? '—'}</div>
+        </div>
+        <div className="stat-card stat-gold">
+          <span className="stat-card-icon">🎫</span>
+          <div className="stat-card-label">Reservas</div>
+          <div className="stat-card-value">{stats?.bookings ?? '—'}</div>
+        </div>
+        <div className="stat-card stat-gold">
+          <span className="stat-card-icon">💰</span>
+          <div className="stat-card-label">Recaudado</div>
+          <div className="stat-card-value" style={{ fontSize: 20 }}>
+            {stats ? `$${stats.revenue.toLocaleString('es-MX')}` : '—'}
+          </div>
+        </div>
+      </div>
+
+      {/* Info card */}
+      <div className="vip-card">
+        <h3 style={{ margin: '0 0 10px', fontSize: 16, fontWeight: 700 }}>⚡ Acciones Rápidas</h3>
+        <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 14, margin: 0, lineHeight: 1.7 }}>
+          Gestiona <strong style={{ color: '#60a5fa' }}>usuarios</strong>, administra <strong style={{ color: '#60a5fa' }}>vuelos</strong>,
+          revisa <strong style={{ color: '#60a5fa' }}>reservas pendientes</strong> y controla los <strong style={{ color: '#60a5fa' }}>pagos</strong> desde el menú lateral.
+          Capacidad máxima: <strong>200 pasajeros por vuelo</strong>.
+        </p>
+      </div>
     </div>
   );
 }

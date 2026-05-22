@@ -1,3 +1,8 @@
+/* ============================================
+   AEROAZTECA — Premium Design System
+   ============================================ */
+
+/* ---- Theme Variables ---- */
 :root, .light {
     --bg: #f8fafc;
     --card: #ffffff;
@@ -6,6 +11,11 @@
     --primary: #3b82f6;
     --primary-600: #2563eb;
     --border: #e2e8f0;
+    --gold: #fbbf24;
+    --gold-dark: #d97706;
+    --silver: #94a3b8;
+    --bronze: #b45309;
+    --vip-gradient: linear-gradient(135deg, #fbbf24 0%, #d97706 50%, #fbbf24 100%);
 }
 
 .dark {
@@ -16,12 +26,51 @@
     --primary: #3b82f6;
     --primary-600: #2563eb;
     --border: #262626;
+    --gold: #fbbf24;
+    --gold-dark: #d97706;
+    --silver: #94a3b8;
+    --bronze: #b45309;
+    --vip-gradient: linear-gradient(135deg, #fbbf24 0%, #d97706 50%, #fbbf24 100%);
+}
+
+/* ---- Keyframe Animations ---- */
+@keyframes shimmer {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(251,191,36,0.4); }
+    50%       { box-shadow: 0 0 20px 6px rgba(251,191,36,0.2); }
+}
+
+@keyframes float-up {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-6px); }
+}
+
+@keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+@keyframes moveBorder {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 body {
     background-color: var(--bg);
     transition: background-color 0.3s ease, color 0.3s ease;
 }
+
 
 * {
     box-sizing: border-box
@@ -340,18 +389,349 @@ button {
     list-style: none
 }
 
+/* ============================================
+   PREMIUM LOGIN CARD
+   ============================================ */
+.login-premium-card {
+    position: relative;
+    background: rgba(12, 12, 20, 0.92) !important;
+    border: 1px solid rgba(59, 130, 246, 0.3) !important;
+    border-radius: 16px !important;
+    box-shadow:
+        0 0 0 1px rgba(59,130,246,0.1),
+        0 25px 60px rgba(0,0,0,0.6),
+        0 0 80px rgba(59,130,246,0.06) !important;
+    backdrop-filter: blur(24px);
+    overflow: hidden;
+}
+.login-premium-card .form input {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.login-premium-card .form input:focus {
+    outline: none;
+    border-color: rgba(59,130,246,0.6);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+    background: rgba(59,130,246,0.05);
+}
+
+/* ============================================
+   PREMIUM BUTTON
+   ============================================ */
+.btn-premium {
+    background: linear-gradient(135deg, #3b82f6 0%, #6d28d9 100%) !important;
+    border: none !important;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    transition: all 0.3s ease !important;
+    position: relative;
+    overflow: hidden;
+}
+.btn-premium::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.15) 60%, transparent 80%);
+    transform: translateX(-100%);
+    transition: transform 0.5s ease;
+}
+.btn-premium:hover::after {
+    transform: translateX(100%);
+}
+.btn-premium:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 24px rgba(59,130,246,0.4) !important;
+}
+.btn-premium:active {
+    transform: translateY(0px) !important;
+}
+
+/* ============================================
+   VIP LOYALTY TIER BADGES
+   ============================================ */
+.tier-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+.tier-gold {
+    background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+    color: #1a0f00;
+    box-shadow: 0 2px 12px rgba(251,191,36,0.4);
+    animation: pulse-glow 3s ease-in-out infinite;
+}
+.tier-silver {
+    background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 100%);
+    color: #1e293b;
+    box-shadow: 0 2px 8px rgba(148,163,184,0.3);
+}
+.tier-bronze {
+    background: linear-gradient(135deg, #d97706 0%, #92400e 100%);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(180,83,9,0.3);
+}
+
+/* ============================================
+   VIP CARD (Dashboard Panels)
+   ============================================ */
+.vip-card {
+    background: linear-gradient(135deg, rgba(20,15,5,0.95) 0%, rgba(10,8,0,0.98) 100%);
+    border: 1px solid rgba(251,191,36,0.3);
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(251,191,36,0.08), 0 8px 32px rgba(0,0,0,0.5);
+}
+.vip-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #fbbf24, #f59e0b, #fbbf24, #d97706);
+    background-size: 200% 100%;
+    animation: shimmer 3s linear infinite;
+}
+.vip-card::after {
+    content: 'VIP';
+    position: absolute;
+    top: 12px; right: 16px;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+    color: rgba(251,191,36,0.4);
+}
+
+/* ============================================
+   STAT / KPI CARDS
+   ============================================ */
+.stat-card {
+    background: rgba(14,14,22,0.92);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    padding: 20px 24px;
+    position: relative;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    overflow: hidden;
+}
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+}
+.stat-card-value {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1;
+    margin: 8px 0 4px;
+}
+.stat-card-label {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+}
+.stat-card-icon {
+    font-size: 28px;
+    position: absolute;
+    top: 16px; right: 20px;
+    opacity: 0.25;
+    animation: float-up 4s ease-in-out infinite;
+}
+.stat-blue  { border-color: rgba(59,130,246,0.25); }
+.stat-blue .stat-card-value { color: #60a5fa; }
+.stat-green { border-color: rgba(16,185,129,0.25); }
+.stat-green .stat-card-value { color: #34d399; }
+.stat-red   { border-color: rgba(239,68,68,0.25); }
+.stat-red .stat-card-value   { color: #f87171; }
+.stat-gold  { border-color: rgba(251,191,36,0.3); }
+.stat-gold .stat-card-value  { color: #fbbf24; }
+.stat-gold::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at top right, rgba(251,191,36,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ============================================
+   FLIGHT CARD PREMIUM
+   ============================================ */
+.flight-card {
+    background: rgba(12,12,20,0.92) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    border-radius: 16px !important;
+    padding: 20px !important;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+.flight-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(59,130,246,0.35) !important;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.5), 0 0 0 1px rgba(59,130,246,0.1) !important;
+}
+.flight-head {
+    font-weight: 800 !important;
+    font-size: 18px;
+    margin-bottom: 8px;
+    background: linear-gradient(90deg, #fff 60%, #60a5fa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ============================================
+   PAYMENT BADGE
+   ============================================ */
+.payment-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+/* ============================================
+   ROLE BADGE
+   ============================================ */
+.badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(59,130,246,0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59,130,246,0.3);
+    letter-spacing: 0.06em;
+}
+
+/* ============================================
+   HERO PREMIUM
+   ============================================ */
 .hero {
     display: grid;
     place-items: center;
-    height: 180px;
-    border-radius: 12px;
+    min-height: 160px;
+    border-radius: 14px;
     padding: 24px;
     position: relative;
     z-index: 1;
-    background: linear-gradient(135deg, #262626 0%, #0a0a0a 100%);
-    border: 1px solid #404040;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, rgba(15,23,42,0.92) 0%, rgba(10,10,20,0.97) 100%);
+    border: 1px solid rgba(59,130,246,0.2);
+    box-shadow: 0 0 60px rgba(59,130,246,0.06), 0 8px 24px rgba(0,0,0,0.4);
+    overflow: hidden;
+}
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #3b82f6);
+    background-size: 200% 100%;
+    animation: shimmer 4s linear infinite;
+}
+.hero::after { display: none; }
+
+/* ============================================
+   TABLE PREMIUM
+   ============================================ */
+.thead {
+    background: rgba(59,130,246,0.06);
+    border-radius: 8px 8px 0 0;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+}
+.trow {
+    border-radius: 6px;
+    transition: background 0.15s ease;
+}
+.trow:hover {
+    background: rgba(59,130,246,0.05) !important;
 }
 
-.hero::before { display: none; }
-.hero::after { display: none; }
+/* ============================================
+   CARD PREMIUM
+   ============================================ */
+.card {
+    background: rgba(12,12,20,0.9) !important;
+    border: 1px solid rgba(255,255,255,0.07) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.3) !important;
+}
+
+/* ============================================
+   SIDEBAR PREMIUM
+   ============================================ */
+.sidebar {
+    background: rgba(6,6,14,0.97) !important;
+    border-right: 1px solid rgba(59,130,246,0.15) !important;
+}
+.sidebar::after {
+    background: transparent !important;
+    border-right: none !important;
+}
+.brand {
+    font-size: 17px !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, #60a5fa 0%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 20px !important;
+    padding: 6px 0;
+}
+.sidebar nav a {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.6);
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    padding: 10px 14px !important;
+}
+.sidebar nav a:hover {
+    background: rgba(59,130,246,0.12) !important;
+    color: #60a5fa !important;
+    border-color: rgba(59,130,246,0.2) !important;
+    transform: translateX(4px);
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+::-webkit-scrollbar-thumb {
+    background: rgba(59,130,246,0.3);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(59,130,246,0.5); }
+
+/* ============================================
+   UTILS
+   ============================================ */
+.text-gold {
+    background: linear-gradient(90deg, #fbbf24 0%, #d97706 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.glow-blue { box-shadow: 0 0 20px rgba(59,130,246,0.3); }
+.glow-gold  { box-shadow: 0 0 20px rgba(251,191,36,0.3); }
+.animate-fade-in { animation: fadeIn 0.4s ease forwards; }

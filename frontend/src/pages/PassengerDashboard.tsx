@@ -1,6 +1,7 @@
 import { Link, Routes, Route, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
+import { gsap } from 'gsap';
 import { flightsApi, bookingsApi, seatsApi, Flight, Booking, Seat, pricingApi, PriceCalculation, travelOffersApi, TravelOffer, stripeApi } from '../services/api';
 import PaymentModal from '../components/PaymentModal';
 import Ticket from '../components/Ticket';
@@ -8,17 +9,43 @@ import NotificationBell from '../components/NotificationBell';
 import PaymentSuccess from './PaymentSuccess';
 import PaymentCancel from './PaymentCancel';
 import SecuritySettings from '../components/SecuritySettings';
+import PageTransition from '../components/PageTransition';
 
 function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
+  const sidebarRef = useRef<HTMLElement>(null);
+  const brandRef = useRef<HTMLDivElement>(null);
+  const linksRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (sidebarRef.current) {
+      gsap.fromTo(sidebarRef.current,
+        { x: -30, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.6, ease: 'power3.out' }
+      );
+    }
+    if (brandRef.current) {
+      gsap.fromTo(brandRef.current,
+        { opacity: 0, y: -10 },
+        { opacity: 1, y: 0, duration: 0.5, delay: 0.2, ease: 'power2.out' }
+      );
+    }
+    if (linksRef.current) {
+      gsap.fromTo(linksRef.current.children,
+        { opacity: 0, x: -16 },
+        { opacity: 1, x: 0, duration: 0.4, stagger: 0.07, delay: 0.3, ease: 'power2.out' }
+      );
+    }
+  }, []);
+
   return (
     <div className="layout">
-      <aside className="sidebar">
-        <div className="brand">Pasajero</div>
-        <nav>
-          <Link to="/passenger">Inicio</Link>
-          <Link to="/passenger/flights">Vuelos Disponibles</Link>
-          <Link to="/passenger/my-flights">Mis Vuelos / Estado</Link>
+      <aside className="sidebar" ref={sidebarRef}>
+        <div className="brand" ref={brandRef}>✈ AEROAZTECA</div>
+        <nav ref={linksRef as any}>
+          <Link to="/passenger">🏠 Inicio</Link>
+          <Link to="/passenger/flights">✈️ Vuelos Disponibles</Link>
+          <Link to="/passenger/my-flights">🎫 Mis Vuelos / Estado</Link>
         </nav>
         <div className="userbox" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
           <div className="name" style={{ wordBreak: 'break-word', fontWeight: '500', marginBottom: '4px' }}>{user?.fullName}</div>
@@ -63,7 +90,9 @@ function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </aside>
-      <main className="content">{children}</main>
+      <main className="content">
+        <PageTransition>{children}</PageTransition>
+      </main>
     </div>
   );
 }

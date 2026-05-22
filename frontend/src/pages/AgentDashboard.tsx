@@ -1,33 +1,63 @@
 import { Link, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { gsap } from 'gsap';
 import { flightsApi, CreateFlightDto, UpdateFlightDto, Flight, adminFlightsApi, AdminFlightWithCount, PassengerLite, paymentsApi, Payment, seatsApi, Seat, pricingApi, PriceCalculation, bookingsApi, Booking } from '../services/api';
 import NotificationBell from '../components/NotificationBell';
 import SecuritySettings from '../components/SecuritySettings';
+import PageTransition from '../components/PageTransition';
 
 function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
+  const sidebarRef = useRef<HTMLElement>(null);
+  const brandRef = useRef<HTMLDivElement>(null);
+  const linksRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (sidebarRef.current) {
+      gsap.fromTo(sidebarRef.current,
+        { x: -30, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.6, ease: 'power3.out' }
+      );
+    }
+    if (brandRef.current) {
+      gsap.fromTo(brandRef.current,
+        { opacity: 0, y: -10 },
+        { opacity: 1, y: 0, duration: 0.5, delay: 0.2, ease: 'power2.out' }
+      );
+    }
+    if (linksRef.current) {
+      gsap.fromTo(linksRef.current.children,
+        { opacity: 0, x: -16 },
+        { opacity: 1, x: 0, duration: 0.4, stagger: 0.07, delay: 0.3, ease: 'power2.out' }
+      );
+    }
+  }, []);
+
   return (
     <div className="layout">
-      <aside className="sidebar">
-        <div className="brand">Agente</div>
-        <nav>
-          <Link to="/agent">Inicio</Link>
-          <Link to="/agent/flights">Vuelos</Link>
-          <Link to="/agent/passengers">Pasajeros</Link>
-          <Link to="/agent/pending">Reservas pendientes</Link>
-          <Link to="/agent/payments">Historial de Pagos</Link>
+      <aside className="sidebar" ref={sidebarRef}>
+        <div className="brand" ref={brandRef}>✈ AEROAZTECA</div>
+        <nav ref={linksRef as any}>
+          <Link to="/agent">🏠 Inicio</Link>
+          <Link to="/agent/flights">✈️ Vuelos</Link>
+          <Link to="/agent/passengers">👥 Pasajeros</Link>
+          <Link to="/agent/pending">⏳ Reservas pendientes</Link>
+          <Link to="/agent/payments">💳 Historial de Pagos</Link>
         </nav>
-        <div className="userbox">
-          <div className="name">{user?.fullName}</div>
-          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+        <div className="userbox" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#60a5fa', marginBottom: 4 }}>{user?.fullName}</div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 10, letterSpacing: '0.05em' }}>AGENTE</div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <SecuritySettings />
             <NotificationBell />
-            <button className="btn-secondary" onClick={logout}>Salir</button>
+            <button className="btn-secondary" onClick={logout} style={{ fontSize: 12, padding: '6px 10px' }}>Salir</button>
           </div>
         </div>
       </aside>
-      <main className="content">{children}</main>
+      <main className="content">
+        <PageTransition>{children}</PageTransition>
+      </main>
     </div>
   );
 }

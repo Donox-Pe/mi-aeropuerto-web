@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../services/api';
 import TwoFactorLogin from '../components/TwoFactorLogin';
-
 import Plane3D from '../components/Plane3D';
+import { gsap } from 'gsap';
 
 function LoginInner() {
   const { login } = useAuth();
@@ -24,6 +24,38 @@ function LoginInner() {
   const [verificationCode, setVerificationCode] = useState('');
   const [verifyingEmail, setVerifyingEmail] = useState('');
 
+  const cardRef = useRef<HTMLDivElement>(null);
+  const logoRef = useRef<HTMLHeadingElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // GSAP entrance animation
+  useEffect(() => {
+    const tl = gsap.timeline();
+    if (logoRef.current) {
+      tl.fromTo(logoRef.current,
+        { opacity: 0, y: -30, letterSpacing: '0.5em' },
+        { opacity: 1, y: 0, letterSpacing: '0.1em', duration: 1, ease: 'power3.out' }
+      );
+    }
+    if (cardRef.current) {
+      tl.fromTo(cardRef.current,
+        { opacity: 0, y: 40, scale: 0.95 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: 'power3.out' },
+        '-=0.5'
+      );
+    }
+  }, []);
+
+  // Animate when switching between login/register
+  useEffect(() => {
+    if (formRef.current) {
+      gsap.fromTo(formRef.current,
+        { opacity: 0, x: isRegister ? 20 : -20 },
+        { opacity: 1, x: 0, duration: 0.35, ease: 'power2.out' }
+      );
+    }
+  }, [isRegister]);
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -40,33 +72,34 @@ function LoginInner() {
         }
       } else {
         const result = await login(email, password) as any;
-        
+
         if (result.requires2FA) {
           setRequires2fa(true);
           setTempUserId(result.tempUserId);
           return;
         }
-        
+
         const rolePath = result.role === 'ADMIN' ? '/admin' : result.role === 'AGENT' ? '/agent' : '/passenger';
         navigate(from || rolePath, { replace: true });
       }
     } catch (err: any) {
       const msg = err?.response?.data?.message || (isRegister ? 'Error al registrarse' : 'Error al iniciar sesión');
       setError(msg);
-      
-      // Si el error es por falta de verificación, permitir ir a la pantalla de verificación
+      if (cardRef.current) {
+        gsap.fromTo(cardRef.current, { x: -8 }, { x: 0, duration: 0.4, ease: 'elastic.out(1, 0.3)' });
+      }
       if (err?.response?.status === 403 && !isRegister) {
         setVerifyingEmail(email);
         setRequiresVerification(true);
       }
     }
   }
+
   async function handleVerify2FA(token: string) {
     try {
       const { data } = await api.post('/auth/2fa/validate', { userId: tempUserId, token });
       sessionStorage.setItem('token', data.token);
       sessionStorage.setItem('user', JSON.stringify(data.user));
-      // Reload force para que se inicialice useAuth y el socket
       window.location.href = from || (data.user.role === 'ADMIN' ? '/admin' : data.user.role === 'AGENT' ? '/agent' : '/passenger');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Código 2FA inválido');
@@ -88,39 +121,82 @@ function LoginInner() {
   }
 
   return (
-    <div className="auth-wrapper" style={{ position: 'relative' }}>
+    <div className="auth-wrapper" style={{ position: 'relative', overflow: 'hidden' }}>
       <Plane3D />
+
+      {/* Decorative orbs */}
+      <div style={{
+        position: 'fixed', top: '-20%', left: '-10%',
+        width: 500, height: 500,
+        background: 'radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%)',
+        borderRadius: '50%', pointerEvents: 'none', zIndex: 0
+      }} />
+      <div style={{
+        position: 'fixed', bottom: '-20%', right: '-10%',
+        width: 600, height: 600,
+        background: 'radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 70%)',
+        borderRadius: '50%', pointerEvents: 'none', zIndex: 0
+      }} />
+
       {requires2fa && (
-        <TwoFactorLogin 
-          onVerify={handleVerify2FA} 
-          onCancel={() => { setRequires2fa(false); setTempUserId(null); }} 
-          isLoading={false} 
+        <TwoFactorLogin
+          onVerify={handleVerify2FA}
+          onCancel={() => { setRequires2fa(false); setTempUserId(null); }}
+          isLoading={false}
         />
       )}
-      <div className="auth-card">
-        <h1>AEROAZTECA</h1>
-        <p className="subtitle">Accede a tu cuenta</p>
-        {error && <div className="error-chip">{error}</div>}
+
+      <div ref={cardRef} className="auth-card login-premium-card">
+        {/* Premium top accent line */}
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: 3,
+          background: 'linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #3b82f6 100%)',
+          backgroundSize: '200% 100%',
+          animation: 'shimmer 3s linear infinite',
+          borderRadius: '12px 12px 0 0'
+        }} />
+
+        <h1 ref={logoRef} style={{
+          margin: '0 0 4px 0', fontSize: 26, fontWeight: 900,
+          letterSpacing: '0.1em',
+          background: 'linear-gradient(90deg, #60a5fa 0%, #a78bfa 50%, #60a5fa 100%)',
+          backgroundSize: '200% 100%',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          animation: 'shimmer 4s linear infinite'
+        }}>
+          AEROAZTECA
+        </h1>
+        <p className="subtitle" style={{ marginBottom: 20, fontSize: 13 }}>
+          {requiresVerification ? 'Verificación de correo' : isRegister ? 'Crea tu cuenta de vuelo' : 'Accede a tu cuenta'}
+        </p>
+
+        {error && (
+          <div className="error-chip" style={{ animation: 'fadeIn 0.3s ease' }}>
+            {error}
+          </div>
+        )}
+
         {requiresVerification ? (
           <form onSubmit={onVerifyEmail} className="form">
-            <p style={{ color: '#94a3b8', fontSize: 14, marginBottom: 16 }}>
-              Ingresa el código de 6 dígitos que enviamos a <strong>{verifyingEmail}</strong> para activar tu cuenta.
+            <p style={{ color: '#94a3b8', fontSize: 13, marginBottom: 12, lineHeight: 1.5 }}>
+              Ingresa el código de 6 dígitos que enviamos a <strong style={{ color: '#60a5fa' }}>{verifyingEmail}</strong>
             </p>
             <label>Código de verificación</label>
-            <input 
-              value={verificationCode} 
-              onChange={(e) => setVerificationCode(e.target.value)} 
-              type="text" 
-              placeholder="123456" 
+            <input
+              value={verificationCode}
+              onChange={(e) => setVerificationCode(e.target.value)}
+              type="text"
+              placeholder="123456"
               maxLength={6}
-              required 
+              required
+              style={{ textAlign: 'center', fontSize: 22, letterSpacing: '0.3em', fontWeight: 'bold' }}
             />
-            <button type="submit" className="btn-primary">Verificar Cuenta</button>
-            
-            <button 
-              type="button" 
-              className="btn-secondary" 
-              style={{ marginTop: 8 }}
+            <button type="submit" className="btn-primary btn-premium">Verificar Cuenta</button>
+            <button
+              type="button"
+              className="btn-secondary"
+              style={{ marginTop: 4 }}
               onClick={async () => {
                 setError(null);
                 try {
@@ -133,18 +209,17 @@ function LoginInner() {
             >
               Reenviar código
             </button>
-
-            <button 
-              type="button" 
-              className="btn-link" 
-              style={{ marginTop: 16, color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13 }}
+            <button
+              type="button"
+              className="btn-link"
+              style={{ marginTop: 12, color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', fontSize: 12 }}
               onClick={() => { setRequiresVerification(false); setIsRegister(true); }}
             >
-              Regresar al registro
+              ← Regresar al registro
             </button>
           </form>
         ) : (
-          <form onSubmit={onSubmit} className="form">
+          <form ref={formRef} onSubmit={onSubmit} className="form">
             {isRegister && (
               <>
                 <label>Nombre completo</label>
@@ -152,23 +227,25 @@ function LoginInner() {
               </>
             )}
             <label>Email</label>
-            <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="admin@airport.com" required />
-            
+            <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="usuario@aeroazteca.com" required />
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <label style={{ margin: 0 }}>Contraseña</label>
-              <Link to="/forgot-password" style={{ color: '#94a3b8', fontSize: 12, textDecoration: 'none' }}>¿Olvidaste tu contraseña?</Link>
+              <Link to="/forgot-password" style={{ color: '#60a5fa', fontSize: 12, textDecoration: 'none' }}>¿Olvidaste tu contraseña?</Link>
             </div>
-            <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="********" required />
-            
-            <button type="submit" className="btn-primary">{isRegister ? 'Registrarse' : 'Ingresar'}</button>
+            <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="••••••••" required />
+
+            <button type="submit" className="btn-primary btn-premium" style={{ marginTop: 4 }}>
+              {isRegister ? '✈ Registrarse' : '→ Ingresar'}
+            </button>
             <button
               type="button"
               className="btn-secondary"
               onClick={() => { setIsRegister(!isRegister); setError(null); }}
             >
-              {isRegister ? 'Ya tengo cuenta, iniciar sesión' : 'Crear cuenta nueva (pasajero)'}
+              {isRegister ? 'Ya tengo cuenta — Iniciar sesión' : 'Crear cuenta nueva (pasajero)'}
             </button>
-            <div className="hint">@AEROAZTECA</div>
+            <div className="hint" style={{ marginTop: 4, fontSize: 11, letterSpacing: '0.15em', opacity: 0.5 }}>AEROAZTECA © 2025</div>
           </form>
         )}
       </div>
@@ -177,5 +254,3 @@ function LoginInner() {
 }
 
 export default function Login() { return <LoginInner />; }
-
-
