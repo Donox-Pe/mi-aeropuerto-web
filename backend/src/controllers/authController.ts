@@ -235,27 +235,36 @@ export async function testEmail(req: Request, res: Response) {
   const { to } = req.body;
   if (!to) return res.status(400).json({ message: 'Se requiere el campo "to"' });
 
+  // Mostrar qué variables tiene Render en este momento
+  const smtpConfig = {
+    SMTP_HOST: process.env.SMTP_HOST || '(no definido)',
+    SMTP_PORT: process.env.SMTP_PORT || '(no definido)',
+    SMTP_SECURE: process.env.SMTP_SECURE || '(no definido)',
+    SMTP_USER: process.env.SMTP_USER || '(no definido)',
+    SMTP_PASS: process.env.SMTP_PASS ? `✅ definido (${process.env.SMTP_PASS.length} chars)` : '❌ (no definido)',
+    SMTP_FROM: process.env.SMTP_FROM || '(no definido)',
+  };
+
   try {
-    const info = await sendVerificationEmail(to, '123456', 'Usuario de Prueba');
+    await sendVerificationEmail(to, '123456', 'Usuario de Prueba');
     return res.json({ 
       ok: true, 
-      message: 'Correo de prueba enviado con éxito.', 
-      info 
+      message: '✅ Correo enviado con éxito.',
+      smtpConfig
     });
   } catch (error: any) {
     return res.status(500).json({ 
       ok: false, 
-      message: 'Error al enviar el correo de prueba.', 
+      message: '❌ Error al enviar correo.',
       error: error.message,
-      details: {
-        host: process.env.SMTP_HOST,
-        port: process.env.SMTP_PORT,
-        user: process.env.SMTP_USER,
-        secure: process.env.SMTP_SECURE
-      }
+      errorCode: error.code,
+      smtpResponse: error.response,
+      smtpResponseCode: error.responseCode,
+      smtpConfig
     });
   }
 }
+
 
 // ─── 2FA SETUP ───────────────────────────────────────────────
 export async function setup2FA(req: Request, res: Response) {
