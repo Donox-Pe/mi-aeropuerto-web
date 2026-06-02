@@ -3,7 +3,6 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../services/api';
 import TwoFactorLogin from '../components/TwoFactorLogin';
-import Plane3D from '../components/Plane3D';
 import { gsap } from 'gsap';
 
 function LoginInner() {
@@ -25,7 +24,7 @@ function LoginInner() {
   const [verifyingEmail, setVerifyingEmail] = useState('');
 
   const cardRef = useRef<HTMLDivElement>(null);
-  const logoRef = useRef<HTMLHeadingElement>(null);
+  const logoRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
   // GSAP entrance animation
@@ -33,8 +32,8 @@ function LoginInner() {
     const tl = gsap.timeline();
     if (logoRef.current) {
       tl.fromTo(logoRef.current,
-        { opacity: 0, y: -30, letterSpacing: '0.5em' },
-        { opacity: 1, y: 0, letterSpacing: '0.1em', duration: 1, ease: 'power3.out' }
+        { opacity: 0, y: -30, scale: 0.85 },
+        { opacity: 1, y: 0, scale: 1, duration: 1, ease: 'power3.out' }
       );
     }
     if (cardRef.current) {
@@ -122,8 +121,6 @@ function LoginInner() {
 
   return (
     <div className="auth-wrapper" style={{ position: 'relative', overflow: 'hidden' }}>
-      <Plane3D />
-
       {/* Decorative orbs */}
       <div style={{
         position: 'fixed', top: '-20%', left: '-10%',
@@ -156,17 +153,9 @@ function LoginInner() {
           borderRadius: '12px 12px 0 0'
         }} />
 
-        <h1 ref={logoRef} style={{
-          margin: '0 0 4px 0', fontSize: 26, fontWeight: 900,
-          letterSpacing: '0.1em',
-          background: 'linear-gradient(90deg, #60a5fa 0%, #a78bfa 50%, #60a5fa 100%)',
-          backgroundSize: '200% 100%',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          animation: 'shimmer 4s linear infinite'
-        }}>
-          AEROAZTECA
-        </h1>
+        <div ref={logoRef} style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+          <img src="/LOGO.png" alt="AEROAZTECA" style={{ height: '70px', maxWidth: '100%', objectFit: 'contain' }} />
+        </div>
         <p className="subtitle" style={{ marginBottom: 20, fontSize: 13 }}>
           {requiresVerification ? 'Verificación de correo' : isRegister ? 'Crea tu cuenta de vuelo' : 'Accede a tu cuenta'}
         </p>

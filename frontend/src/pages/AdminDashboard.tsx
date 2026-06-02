@@ -2,10 +2,11 @@ import { Link, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useEffect, useState, useRef } from 'react';
 import { gsap } from 'gsap';
-import { api, adminUsersApi, flightsApi, CreateUserDto, UpdateUserDto, CreateFlightDto, UpdateFlightDto, adminFlightsApi, AdminFlightWithCount, PassengerLite, Flight, seatsApi, Seat, paymentsApi, Payment, pricingApi, PriceCalculation, travelOffersApi, TravelOffer, CreateTravelOfferDto, UpdateTravelOfferDto, bookingsApi, Booking } from '../services/api';
+import { api, adminUsersApi, flightsApi, CreateUserDto, UpdateUserDto, CreateFlightDto, UpdateFlightDto, adminFlightsApi, AdminFlightWithCount, PassengerLite, Flight, seatsApi, Seat, paymentsApi, Payment, pricingApi, PriceCalculation, travelOffersApi, TravelOffer, CreateTravelOfferDto, UpdateTravelOfferDto, bookingsApi, Booking, analyticsApi, AnalyticsData } from '../services/api';
 import NotificationBell from '../components/NotificationBell';
 import SecuritySettings from '../components/SecuritySettings';
 import PageTransition from '../components/PageTransition';
+import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
@@ -37,7 +38,9 @@ function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="layout">
       <aside className="sidebar" ref={sidebarRef}>
-        <div className="brand" ref={brandRef}>✈ AEROAZTECA</div>
+        <div className="brand" ref={brandRef} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '10px 0' }}>
+          <img src="/LOGO.png" alt="AEROAZTECA" style={{ height: '36px', maxWidth: '100%', objectFit: 'contain' }} />
+        </div>
         <nav ref={linksRef as any}>
           <Link to="/admin">🏠 Inicio</Link>
           <Link to="/admin/users">👥 Usuarios</Link>
@@ -45,6 +48,7 @@ function Layout({ children }: { children: React.ReactNode }) {
           <Link to="/admin/pending">⏳ Reservas pendientes</Link>
           <Link to="/admin/offers">🎁 Ofertas</Link>
           <Link to="/admin/payments">💳 Pagos</Link>
+          <Link to="/admin/analytics">📊 Analíticas</Link>
         </nav>
         <div className="userbox" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: '#60a5fa', marginBottom: 4 }}>{user?.fullName}</div>
@@ -1115,6 +1119,230 @@ function TravelOffers() {
   );
 }
 
+function Analytics() {
+  const [data, setData] = useState<AnalyticsData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const chartsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    analyticsApi.get()
+      .then(setData)
+      .catch(() => setError('Error al cargar analíticas'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    if (data && chartsRef.current) {
+      gsap.fromTo(
+        chartsRef.current.children,
+        { opacity: 0, y: 40, scale: 0.96 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.6, stagger: 0.12, ease: 'power3.out' }
+      );
+    }
+  }, [data]);
+
+  if (loading) return <div className="card" style={{ padding: 40, textAlign: 'center' }}>⏳ Cargando analíticas...</div>;
+  if (error) return <div className="card" style={{ padding: 40, textAlign: 'center', color: '#f87171' }}>{error}</div>;
+  if (!data) return null;
+
+  const COLORS = ['#fbbf24', '#8b5cf6', '#3b82f6'];
+
+  const tooltipStyle = {
+    contentStyle: {
+      background: 'rgba(10,10,20,0.95)',
+      border: '1px solid rgba(59,130,246,0.3)',
+      borderRadius: 10,
+      color: '#fff',
+      fontSize: 13,
+      boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+    },
+    itemStyle: { color: '#e2e8f0' },
+    labelStyle: { color: '#94a3b8', fontWeight: 700 },
+  };
+
+  const chartCard: React.CSSProperties = {
+    background: 'rgba(12,12,20,0.92)',
+    border: '1px solid rgba(59,130,246,0.15)',
+    borderRadius: 16,
+    padding: '20px 16px 12px',
+    position: 'relative',
+    overflow: 'hidden',
+  };
+
+  const chartTitle: React.CSSProperties = {
+    fontSize: 14,
+    fontWeight: 800,
+    letterSpacing: '0.04em',
+    marginBottom: 16,
+    color: '#e2e8f0',
+  };
+
+  return (
+    <div>
+      {/* Hero */}
+      <div className="hero" style={{ marginBottom: 24, textAlign: 'center' }}>
+        <div>
+          <div style={{ fontSize: 12, letterSpacing: '0.25em', color: '#60a5fa', fontWeight: 700, marginBottom: 8, textTransform: 'uppercase' }}>Panel de Analíticas</div>
+          <h2 style={{ margin: 0, fontSize: 24, fontWeight: 900 }}>
+            <span style={{ background: 'linear-gradient(90deg,#60a5fa,#a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Estadísticas del Sistema</span>
+          </h2>
+          <p style={{ color: 'rgba(255,255,255,0.5)', margin: '8px 0 0', fontSize: 14 }}>Datos actualizados en tiempo real</p>
+        </div>
+      </div>
+
+      {/* Totals */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: 14, marginBottom: 24 }}>
+        <div className="stat-card stat-blue">
+          <span className="stat-card-icon">👥</span>
+          <div className="stat-card-label">Usuarios</div>
+          <div className="stat-card-value">{data.totals.users}</div>
+        </div>
+        <div className="stat-card stat-green">
+          <span className="stat-card-icon">✈️</span>
+          <div className="stat-card-label">Vuelos</div>
+          <div className="stat-card-value">{data.totals.flights}</div>
+        </div>
+        <div className="stat-card stat-gold">
+          <span className="stat-card-icon">🎫</span>
+          <div className="stat-card-label">Reservas</div>
+          <div className="stat-card-value">{data.totals.bookings}</div>
+        </div>
+        <div className="stat-card stat-gold">
+          <span className="stat-card-icon">💰</span>
+          <div className="stat-card-label">Recaudado</div>
+          <div className="stat-card-value" style={{ fontSize: 18 }}>${data.totals.revenue.toLocaleString('es-MX')}</div>
+        </div>
+      </div>
+
+      {/* Charts Grid */}
+      <div ref={chartsRef} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(420px,1fr))', gap: 18 }}>
+        {/* 1. Ingresos por mes — AreaChart */}
+        <div style={chartCard}>
+          <div style={chartTitle}>💰 Ingresos Mensuales (MXN)</div>
+          <ResponsiveContainer width="100%" height={260}>
+            <AreaChart data={data.revenueChart}>
+              <defs>
+                <linearGradient id="gradRevenue" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+              <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
+              <YAxis stroke="#64748b" fontSize={11} tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`} />
+              <Tooltip {...tooltipStyle} formatter={(value: any) => [`$${Number(value).toLocaleString('es-MX')}`, 'Ingresos']} />
+              <Area type="monotone" dataKey="ingresos" stroke="#3b82f6" strokeWidth={2.5} fill="url(#gradRevenue)" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* 2. Reservas por mes — BarChart */}
+        <div style={chartCard}>
+          <div style={chartTitle}>🎫 Reservas por Mes</div>
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={data.bookingsChart}>
+              <defs>
+                <linearGradient id="gradBookings" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.9} />
+                  <stop offset="100%" stopColor="#6d28d9" stopOpacity={0.6} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+              <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
+              <YAxis stroke="#64748b" fontSize={11} />
+              <Tooltip {...tooltipStyle} />
+              <Bar dataKey="reservas" fill="url(#gradBookings)" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* 3. Distribución de clases — PieChart */}
+        <div style={chartCard}>
+          <div style={chartTitle}>🎨 Distribución de Clases</div>
+          <ResponsiveContainer width="100%" height={260}>
+            <PieChart>
+              <Pie
+                data={data.classChart}
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={95}
+                paddingAngle={4}
+                dataKey="value"
+                stroke="none"
+              >
+                {data.classChart.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip {...tooltipStyle} />
+              <Legend
+                wrapperStyle={{ fontSize: 12, color: '#94a3b8' }}
+                formatter={(value: string) => <span style={{ color: '#e2e8f0' }}>{value}</span>}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* 4. Top Rutas — BarChart horizontal */}
+        <div style={chartCard}>
+          <div style={chartTitle}>🗺️ Top 5 Rutas Más Populares</div>
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={data.topRoutes} layout="vertical">
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+              <XAxis type="number" stroke="#64748b" fontSize={11} />
+              <YAxis dataKey="route" type="category" stroke="#64748b" fontSize={11} width={140} />
+              <Tooltip {...tooltipStyle} />
+              <Bar dataKey="count" fill="#10b981" radius={[0, 6, 6, 0]} name="Reservas" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* 5. Usuarios registrados por mes — LineChart */}
+        <div style={chartCard}>
+          <div style={chartTitle}>👥 Usuarios Registrados por Mes</div>
+          <ResponsiveContainer width="100%" height={260}>
+            <LineChart data={data.usersChart}>
+              <defs>
+                <linearGradient id="gradUsers" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+              <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
+              <YAxis stroke="#64748b" fontSize={11} />
+              <Tooltip {...tooltipStyle} />
+              <Line type="monotone" dataKey="usuarios" stroke="#f59e0b" strokeWidth={2.5} dot={{ fill: '#f59e0b', r: 5, strokeWidth: 2, stroke: '#1e1b4b' }} activeDot={{ r: 7, fill: '#fbbf24' }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* 6. Ocupación por vuelo — BarChart */}
+        <div style={chartCard}>
+          <div style={chartTitle}>📊 Ocupación por Vuelo (%)</div>
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={data.flightOccupancy}>
+              <defs>
+                <linearGradient id="gradOcc" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#06b6d4" stopOpacity={0.9} />
+                  <stop offset="100%" stopColor="#0891b2" stopOpacity={0.5} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+              <XAxis dataKey="code" stroke="#64748b" fontSize={11} />
+              <YAxis stroke="#64748b" fontSize={11} domain={[0, 100]} tickFormatter={(v: number) => `${v}%`} />
+              <Tooltip {...tooltipStyle} formatter={(value: any) => [`${value}%`, 'Ocupación']} />
+              <Bar dataKey="occupancy" fill="url(#gradOcc)" radius={[6, 6, 0, 0]} name="Ocupación" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AdminApp() {
   return (
     <Layout>
@@ -1125,6 +1353,7 @@ function AdminApp() {
         <Route path="pending" element={<PendingBookings />} />
         <Route path="offers" element={<TravelOffers />} />
         <Route path="payments" element={<PaymentsHistory />} />
+        <Route path="analytics" element={<Analytics />} />
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Routes>
     </Layout>

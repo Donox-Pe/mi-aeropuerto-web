@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
-import PixelBlast from '../components/PixelBlast';
 
 export default function PaymentSuccess() {
   const [searchParams] = useSearchParams();
@@ -36,9 +35,6 @@ export default function PaymentSuccess() {
 
   return (
     <div className="auth-wrapper">
-      <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1, background: '#000' }}>
-        <PixelBlast variant="plane" color="#10b981" />
-      </div>
       
       <div className="auth-card" style={{ maxWidth: 400, textAlign: 'center' }}>
         {status === 'loading' && (

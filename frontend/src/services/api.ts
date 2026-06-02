@@ -265,4 +265,17 @@ export const travelOffersApi = {
   delete: (id: number) => api.delete(`/travel-offers/${id}`).then(r => r.data),
 };
 
+// Analytics
+export type AnalyticsData = {
+  totals: { users: number; flights: number; bookings: number; revenue: number };
+  revenueChart: { month: string; ingresos: number }[];
+  bookingsChart: { month: string; reservas: number }[];
+  usersChart: { month: string; usuarios: number }[];
+  classChart: { name: string; value: number; color: string }[];
+  topRoutes: { route: string; count: number }[];
+  flightOccupancy: { code: string; route: string; occupancy: number; occupied: number; total: number }[];
+};
 
+export const analyticsApi = {
+  get: () => api.get<AnalyticsData>('/admin/analytics').then(r => r.data),
+};

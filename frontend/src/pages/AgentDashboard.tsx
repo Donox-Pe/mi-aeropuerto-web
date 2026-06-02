@@ -37,7 +37,9 @@ function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="layout">
       <aside className="sidebar" ref={sidebarRef}>
-        <div className="brand" ref={brandRef}>✈ AEROAZTECA</div>
+        <div className="brand" ref={brandRef} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '10px 0' }}>
+          <img src="/LOGO.png" alt="AEROAZTECA" style={{ height: '36px', maxWidth: '100%', objectFit: 'contain' }} />
+        </div>
         <nav ref={linksRef as any}>
           <Link to="/agent">🏠 Inicio</Link>
           <Link to="/agent/flights">✈️ Vuelos</Link>

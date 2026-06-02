@@ -19,6 +19,7 @@ import paymentsRoutes from './routes/payments.js';
 import travelOffersRoutes from './routes/travelOffers.js';
 import stripeRoutes from './routes/stripe.js';
 import notificationRoutes from './routes/notifications.js';
+import analyticsRoutes from './routes/analytics.js';
 import { handleWebhook } from './controllers/stripeController.js';
 import { apiRateLimiter } from './middlewares/rateLimiter.js';
 import { errorHandler } from './middlewares/errorHandler.js';
@@ -57,6 +58,7 @@ export function createServer() {
   app.use('/api/travel-offers', travelOffersRoutes);
   app.use('/api/stripe', stripeRoutes);
   app.use('/api/notifications', notificationRoutes);
+  app.use('/api/admin/analytics', analyticsRoutes);
   
   // Servir frontend en producción (solo si existe la carpeta dist)
   const frontendPath = path.resolve(__dirname, '../../frontend/dist');

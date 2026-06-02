@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../services/api';
-import PixelBlast from '../components/PixelBlast';
+
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
@@ -47,24 +47,7 @@ export default function ForgotPassword() {
 
   return (
     <>
-      <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1, background: '#000' }}>
-        <PixelBlast
-          variant="plane"
-          pixelSize={4}
-          color="#B19EEF"
-          patternScale={2}
-          patternDensity={1}
-          pixelSizeJitter={0}
-          enableRipples
-          rippleSpeed={0.4}
-          rippleThickness={0.12}
-          rippleIntensityScale={1.5}
-          liquid={false}
-          speed={0.5}
-          edgeFade={0.25}
-          transparent
-        />
-      </div>
+
 
       <div style={{ 
         position: 'relative', 
@@ -85,9 +68,10 @@ export default function ForgotPassword() {
           border: '1px solid rgba(255, 255, 255, 0.1)',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
         }}>
-          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-            <h1 style={{ margin: 0, fontSize: '28px', color: '#fff', fontWeight: '800' }}>Recuperación</h1>
-            <p style={{ margin: '8px 0 0 0', color: '#94a3b8' }}>Restablecer contraseña</p>
+          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+            <img src="/LOGO.png" alt="AEROAZTECA" style={{ height: '60px', maxWidth: '100%', objectFit: 'contain', marginBottom: '12px' }} />
+            <h1 style={{ margin: 0, fontSize: '24px', color: '#fff', fontWeight: '800' }}>Recuperación</h1>
+            <p style={{ margin: '4px 0 0 0', color: '#94a3b8', fontSize: '13px' }}>Restablecer contraseña</p>
           </div>
 
           {error && (

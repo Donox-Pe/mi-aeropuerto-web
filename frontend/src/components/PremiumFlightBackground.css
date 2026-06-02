@@ -1,0 +1,250 @@
+/* ==========================================================================
+   PremiumFlightBackground.css — Estilos para el Radar de Navegación Premium
+   ========================================================================== */
+
+.flight-bg-container {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    transition: background 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    background: radial-gradient(circle at 50% 50%, #040712 0%, #010205 100%);
+}
+
+/* Modo claro premium */
+.light .flight-bg-container {
+    background: radial-gradient(circle at 50% 50%, #f0f4f9 0%, #dbe4f0 100%);
+}
+
+/* ---- Capas de Paralaje ---- */
+.flight-bg-layer {
+    position: absolute;
+    inset: -40px;
+    width: calc(100% + 80px);
+    height: calc(100% + 80px);
+    pointer-events: none;
+    transform: translate3d(0, 0, 0);
+    transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.layer-grid {
+    z-index: 1;
+}
+
+.layer-radar {
+    z-index: 2;
+}
+
+.layer-overlay {
+    z-index: 3;
+}
+
+/* ---- Rejilla y Estructura HUD ---- */
+.hud-grid {
+    position: absolute;
+    inset: 0;
+    background-image: 
+        linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    background-position: center;
+    opacity: 0.8;
+}
+
+.light .hud-grid {
+    background-image: 
+        linear-gradient(rgba(37, 99, 235, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(37, 99, 235, 0.04) 1px, transparent 1px);
+}
+
+/* ---- Auroras / Nubes de Energía ---- */
+.nebula {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+.nebula-blue {
+    top: 10%;
+    left: 15%;
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, rgba(59, 130, 246, 0) 70%);
+}
+
+.nebula-purple {
+    bottom: 10%;
+    right: 15%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.06) 0%, rgba(139, 92, 246, 0) 70%);
+}
+
+.light .nebula-blue {
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.06) 0%, rgba(59, 130, 246, 0) 75%);
+}
+
+.light .nebula-purple {
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.04) 0%, rgba(139, 92, 246, 0) 75%);
+}
+
+/* ---- Animación de Barrido del Radar ---- */
+.radar-sweep-line {
+    transform-origin: 500px 300px;
+    animation: radarSweep 14s linear infinite;
+}
+
+@keyframes radarSweep {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* ---- Rutas Aéreas del Radar ---- */
+.flight-route {
+    fill: none;
+    stroke: rgba(59, 130, 246, 0.18);
+    stroke-width: 1.2;
+    stroke-dasharray: 6 6;
+}
+
+.light .flight-route {
+    stroke: rgba(37, 99, 235, 0.12);
+}
+
+.flight-route-glow {
+    fill: none;
+    stroke: rgba(96, 165, 250, 0.4);
+    stroke-width: 2;
+    stroke-dasharray: 40 180;
+    animation: routeGlowMove 15s linear infinite;
+}
+
+@keyframes routeGlowMove {
+    from { stroke-dashoffset: 440; }
+    to { stroke-dashoffset: 0; }
+}
+
+/* ---- Nodos y Destinos del Radar ---- */
+.node-outer-glow {
+    fill: rgba(59, 130, 246, 0.05);
+    stroke: rgba(59, 130, 246, 0.3);
+    stroke-width: 1;
+    transform-origin: center;
+    animation: nodePulse 4s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+.light .node-outer-glow {
+    fill: rgba(37, 99, 235, 0.03);
+    stroke: rgba(37, 99, 235, 0.2);
+}
+
+.node-core {
+    fill: #3b82f6;
+    filter: drop-shadow(0 0 5px rgba(59, 130, 246, 0.8));
+    transition: fill 0.5s ease;
+}
+
+.light .node-core {
+    fill: #2563eb;
+    filter: drop-shadow(0 0 3px rgba(37, 99, 235, 0.5));
+}
+
+@keyframes nodePulse {
+    0% { transform: scale(0.8); opacity: 0.9; }
+    50% { transform: scale(1.6); opacity: 0; }
+    100% { transform: scale(0.8); opacity: 0; }
+}
+
+/* ---- Siluetas de Avión Realistas (Aerolíneas) ---- */
+.airplane-group {
+    pointer-events: none;
+}
+
+.flying-airplane {
+    fill: #ffffff;
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 3px rgba(96, 165, 250, 0.6));
+    transition: fill 0.5s ease;
+}
+
+.light .flying-airplane {
+    fill: #1e293b;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2)) drop-shadow(0 0 2px rgba(37, 99, 235, 0.4));
+}
+
+/* ---- Cuadro de Datos Telemetría HUD (Fórmula 1 / Aviación) ---- */
+.telemetry-card {
+    transition: opacity 0.3s ease;
+}
+
+.telemetry-bg {
+    fill: rgba(6, 10, 22, 0.85);
+    stroke: rgba(59, 130, 246, 0.4);
+    stroke-width: 1px;
+}
+
+.light .telemetry-bg {
+    fill: rgba(255, 255, 255, 0.9);
+    stroke: rgba(37, 99, 235, 0.25);
+}
+
+.telemetry-text-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 8px;
+    font-weight: 800;
+    fill: #ffffff;
+    letter-spacing: 0.05em;
+}
+
+.light .telemetry-text-title {
+    fill: #1e293b;
+}
+
+.telemetry-text-value {
+    font-family: 'monospace';
+    font-size: 7px;
+    fill: #60a5fa;
+}
+
+.light .telemetry-text-value {
+    fill: #2563eb;
+}
+
+.telemetry-text-value-alt {
+    font-family: 'monospace';
+    font-size: 7px;
+    fill: #34d399;
+}
+
+.light .telemetry-text-value-alt {
+    fill: #059669;
+}
+
+/* ---- Etiquetas de Aeropuertos ---- */
+.airport-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    fill: rgba(255, 255, 255, 0.9);
+    letter-spacing: 0.1em;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.light .airport-label {
+    fill: #1e293b;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9);
+}
+
+.airport-city {
+    font-size: 8.5px;
+    font-weight: 500;
+    fill: rgba(255, 255, 255, 0.5);
+}
+
+.light .airport-city {
+    fill: #64748b;
+}

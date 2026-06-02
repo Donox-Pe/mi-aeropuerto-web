@@ -1,14 +1,10 @@
 import { useNavigate } from 'react-router-dom';
-import PixelBlast from '../components/PixelBlast';
 
 export default function PaymentCancel() {
   const navigate = useNavigate();
 
   return (
     <div className="auth-wrapper">
-      <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1, background: '#000' }}>
-        <PixelBlast variant="plane" color="#dc2626" />
-      </div>
       
       <div className="auth-card" style={{ maxWidth: 500, textAlign: 'center', border: '1px solid rgba(220, 38, 38, 0.3)' }}>
         <div style={{ fontSize: 72, marginBottom: 24 }}>🛡️</div>

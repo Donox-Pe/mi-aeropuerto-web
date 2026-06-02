@@ -5,7 +5,8 @@ import AdminDashboard from './pages/AdminDashboard';
 import AgentDashboard from './pages/AgentDashboard';
 import PassengerDashboard from './pages/PassengerDashboard';
 import ProtectedRoute from './routes/ProtectedRoute';
-import PixelBlast from './components/PixelBlast';
+import PremiumFlightBackground from './components/PremiumFlightBackground';
+import CursorGlow from './components/CursorGlow';
 
 import ThemeToggle from './components/ThemeToggle';
 
@@ -13,24 +14,8 @@ export default function App() {
   return (
     <>
       <ThemeToggle />
-      <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1, background: '#000' }}>
-        <PixelBlast
-          variant="plane"
-          pixelSize={4}
-          color="#B19EEF"
-          patternScale={2}
-          patternDensity={1}
-          pixelSizeJitter={0}
-          enableRipples
-          rippleSpeed={0.4}
-          rippleThickness={0.12}
-          rippleIntensityScale={1.5}
-          liquid={false}
-          speed={0.5}
-          edgeFade={0.25}
-          transparent
-        />
-      </div>
+      <CursorGlow />
+      <PremiumFlightBackground />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
