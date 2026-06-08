@@ -6,6 +6,7 @@ import { api, adminUsersApi, flightsApi, CreateUserDto, UpdateUserDto, CreateFli
 import NotificationBell from '../components/NotificationBell';
 import SecuritySettings from '../components/SecuritySettings';
 import PageTransition from '../components/PageTransition';
+import ProfileSettings from '../components/ProfileSettings';
 import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 function Layout({ children }: { children: React.ReactNode }) {
@@ -54,6 +55,7 @@ function Layout({ children }: { children: React.ReactNode }) {
           <div style={{ fontSize: 13, fontWeight: 600, color: '#60a5fa', marginBottom: 4 }}>{user?.fullName}</div>
           <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 10, letterSpacing: '0.05em' }}>ADMINISTRADOR</div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <ProfileSettings />
             <SecuritySettings />
             <NotificationBell />
             <button className="btn-secondary" onClick={logout} style={{ fontSize: 12, padding: '6px 10px' }}>Salir</button>
@@ -201,6 +203,64 @@ function PaymentsHistory() {
     }
   }
 
+  function exportCSV() {
+    if (payments.length === 0) {
+      alert('No hay datos para exportar.');
+      return;
+    }
+
+    const headers = [
+      'Fecha',
+      'Pasajero',
+      'Email',
+      'Vuelo',
+      'Ruta',
+      'Asiento',
+      'Clase',
+      'Precio (MXN)',
+      'Estado',
+      'Metodo de Pago'
+    ];
+
+    const rows = payments.map(p => {
+      const fecha = new Date(p.createdAt).toLocaleString('es-MX').replace(/,/g, '');
+      const pasajero = p.booking.user.fullName;
+      const email = p.booking.user.email;
+      const vuelo = p.booking.flight.code;
+      const ruta = `${p.booking.flight.origin} -> ${p.booking.flight.destination}`;
+      const asiento = p.booking.seat ? p.booking.seat.number : 'Sin asiento';
+      const clase = p.booking.seat 
+        ? (p.booking.seat.seatClass === 'FIRST' ? 'Primera' : p.booking.seat.seatClass === 'PREMIUM' ? 'Premium' : 'Economica')
+        : '-';
+      const precio = p.amount;
+      const estado = p.status;
+      const metodo = (p as any).paymentMethod ?? 'CARD';
+
+      return [
+        `"${fecha}"`,
+        `"${pasajero.replace(/"/g, '""')}"`,
+        `"${email.replace(/"/g, '""')}"`,
+        `"${vuelo}"`,
+        `"${ruta}"`,
+        `"${asiento}"`,
+        `"${clase}"`,
+        precio,
+        `"${estado}"`,
+        `"${metodo}"`
+      ];
+    });
+
+    const csvContent = "\uFEFF" + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `reporte_ventas_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   if (loading) return <div className="card">Cargando...</div>;
 
   return (
@@ -210,6 +270,9 @@ function PaymentsHistory() {
         <div style={{ display: 'flex', gap: 8 }}>
           <button className="btn-secondary" onClick={() => load()} disabled={loading}>
             🔄 Actualizar
+          </button>
+          <button className="btn-secondary" onClick={exportCSV}>
+            📥 Exportar CSV
           </button>
           <button className="btn-secondary" onClick={syncPayments} disabled={syncing}>
             {syncing ? 'Sincronizando...' : '💰 Sincronizar Pagos'}

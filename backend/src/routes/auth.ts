@@ -13,6 +13,7 @@ import {
   verifyEmail,
   resendVerification,
   testEmail,
+  updateProfile,
 } from '../controllers/authController.js';
 import { requireAuth } from '../middlewares/authMiddleware.js';
 import { authRateLimiter, resetRateLimiter } from '../middlewares/rateLimiter.js';
@@ -39,5 +40,8 @@ router.get('/2fa/status', requireAuth, get2FAStatus);
 // Recuperación de contraseña
 router.post('/forgot-password', resetRateLimiter, forgotPassword);
 router.post('/reset-password', resetRateLimiter, resetPassword);
+
+// Actualización de Perfil
+router.put('/profile', requireAuth, updateProfile);
 
 export default router;

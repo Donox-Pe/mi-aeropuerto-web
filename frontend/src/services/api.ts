@@ -279,3 +279,11 @@ export type AnalyticsData = {
 export const analyticsApi = {
   get: () => api.get<AnalyticsData>('/admin/analytics').then(r => r.data),
 };
+
+// Auth / Profile
+export type UpdateProfileDto = { fullName?: string; password?: string };
+
+export const authApi = {
+  updateProfile: (dto: UpdateProfileDto) => api.put<{ message: string; user: User }>('/auth/profile', dto).then(r => r.data),
+};
+

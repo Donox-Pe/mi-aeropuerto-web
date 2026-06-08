@@ -7,6 +7,7 @@ type AuthContextType = {
   loading: boolean;
   login: (email: string, password: string) => Promise<User>;
   logout: () => void;
+  updateUser: (updatedUser: User) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -52,6 +53,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       sessionStorage.removeItem('token');
       sessionStorage.removeItem('user');
       setUser(null);
+    },
+    updateUser(updatedUser: User) {
+      sessionStorage.setItem('user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
     },
   }), [user, loading]);
 

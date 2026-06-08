@@ -479,3 +479,51 @@ export async function getMe(req: Request, res: Response) {
 
   return res.json(user);
 }
+
+// ─── UPDATE PROFILE ──────────────────────────────────────────
+const updateProfileSchema = z.object({
+  fullName: z.string().min(2).optional(),
+  password: z.string().min(6).optional(),
+});
+
+export async function updateProfile(req: Request, res: Response) {
+  if (!req.user) return res.status(401).json({ message: 'No autorizado' });
+
+  const parsed = updateProfileSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ message: 'Datos inválidos' });
+
+  const { fullName, password } = parsed.data;
+  const data: any = {};
+  
+  if (fullName) data.fullName = fullName;
+  if (password) data.password = await hashPassword(password);
+
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id: req.user.sub },
+      data,
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        role: true,
+        loyaltyPoints: true,
+        loyaltyTier: true,
+        twoFactorEnabled: true,
+        lastLogin: true,
+        createdAt: true
+      }
+    });
+
+    return res.json({
+      message: 'Perfil actualizado correctamente',
+      user: updatedUser
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      message: 'Error al actualizar el perfil',
+      error: error.message
+    });
+  }
+}
+

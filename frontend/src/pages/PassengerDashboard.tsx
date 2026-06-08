@@ -10,6 +10,7 @@ import PaymentSuccess from './PaymentSuccess';
 import PaymentCancel from './PaymentCancel';
 import SecuritySettings from '../components/SecuritySettings';
 import PageTransition from '../components/PageTransition';
+import ProfileSettings from '../components/ProfileSettings';
 
 function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
@@ -85,6 +86,7 @@ function Layout({ children }: { children: React.ReactNode }) {
 
           <div style={{ display: 'flex', gap: 12, alignItems: 'center', justifyContent: 'space-between', width: '100%', marginTop: 'auto' }}>
             <div style={{ display: 'flex', gap: 8 }}>
+              <ProfileSettings />
               <SecuritySettings />
               <NotificationBell />
             </div>
