@@ -12,9 +12,11 @@ import SecuritySettings from '../components/SecuritySettings';
 import PageTransition from '../components/PageTransition';
 import ProfileSettings from '../components/ProfileSettings';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
 
 function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
   const sidebarRef = useRef<HTMLElement>(null);
   const brandRef = useRef<HTMLDivElement>(null);
   const linksRef = useRef<HTMLDivElement>(null);
@@ -47,9 +49,9 @@ function Layout({ children }: { children: React.ReactNode }) {
           <img src="/LOGO.png" alt="AEROAZTECA" style={{ height: '36px', maxWidth: '100%', objectFit: 'contain' }} />
         </div>
         <nav ref={linksRef as any}>
-          <Link to="/passenger">🏠 Inicio</Link>
-          <Link to="/passenger/flights">✈️ Vuelos Disponibles</Link>
-          <Link to="/passenger/my-flights">🎫 Mis Vuelos / Estado</Link>
+          <Link to="/passenger">🏠 {t('nav.home')}</Link>
+          <Link to="/passenger/flights">✈️ {t('nav.flights')}</Link>
+          <Link to="/passenger/my-flights">🎫 {t('nav.myFlights')}</Link>
         </nav>
         <div className="userbox" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
           <div className="name" style={{ wordBreak: 'break-word', fontWeight: '500', marginBottom: '4px' }}>{user?.fullName}</div>
@@ -92,7 +94,7 @@ function Layout({ children }: { children: React.ReactNode }) {
               <NotificationBell />
               <LanguageSwitcher />
             </div>
-            <button className="btn-secondary" onClick={logout}>Salir</button>
+            <button className="btn-secondary" onClick={logout}>{t('nav.logout')}</button>
           </div>
         </div>
       </aside>
@@ -105,6 +107,7 @@ function Layout({ children }: { children: React.ReactNode }) {
 
 function Home() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [offers, setOffers] = useState<TravelOffer[]>([]);
   const [loading, setLoading] = useState(true);
   const [ticketBooking, setTicketBooking] = useState<Booking | null>(null);
@@ -123,8 +126,8 @@ function Home() {
   return (
     <div style={{ padding: '20px' }}>
       <div className="card-fancy hero" style={{ marginBottom: 32 }}>
-        <h2>✈️ Ofertas Especiales de Viaje</h2>
-        <p>Descubre destinos increíbles con descuentos exclusivos</p>
+        <h2>✈️ {t('offers.title')}</h2>
+        <p>{t('offers.subtitle')}</p>
       </div>
 
       <div style={{
@@ -211,7 +214,7 @@ function Home() {
                   navigate(`/passenger/flights?discount=${offer.discountPercent}&destination=${encodeURIComponent(offer.destination)}&offerId=${offer.id}`);
                 }}
               >
-                Ver Vuelos Disponibles
+                {t('offers.seeFlights')}
               </button>
             </div>
           </div>
@@ -225,9 +228,9 @@ function Home() {
         textAlign: 'center',
         color: 'white'
       }}>
-        <h2 style={{ margin: '0 0 16px 0' }}>🌍 ¿Listo para tu próxima aventura?</h2>
+        <h2 style={{ margin: '0 0 16px 0' }}>🌍 {t('offers.adventure')}</h2>
         <p style={{ fontSize: 18, margin: '0 0 24px 0', opacity: 0.9 }}>
-          Explora todos nuestros destinos y encuentra el viaje perfecto para ti
+          {t('offers.adventureText')}
         </p>
         <button
           className="btn-primary"
@@ -240,7 +243,7 @@ function Home() {
           }}
           onClick={() => navigate('/passenger/flights')}
         >
-          Explorar Todos los Vuelos
+          {t('offers.exploreAll')}
         </button>
       </div>
     </div>
