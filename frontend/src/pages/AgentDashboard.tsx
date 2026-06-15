@@ -7,6 +7,7 @@ import NotificationBell from '../components/NotificationBell';
 import SecuritySettings from '../components/SecuritySettings';
 import PageTransition from '../components/PageTransition';
 import ProfileSettings from '../components/ProfileSettings';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
@@ -51,10 +52,11 @@ function Layout({ children }: { children: React.ReactNode }) {
         <div className="userbox" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: '#60a5fa', marginBottom: 4 }}>{user?.fullName}</div>
           <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 10, letterSpacing: '0.05em' }}>AGENTE</div>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
             <ProfileSettings />
             <SecuritySettings />
             <NotificationBell />
+            <LanguageSwitcher />
             <button className="btn-secondary" onClick={logout} style={{ fontSize: 12, padding: '6px 10px' }}>Salir</button>
           </div>
         </div>

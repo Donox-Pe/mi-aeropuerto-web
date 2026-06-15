@@ -16,6 +16,8 @@ type NotificationContextType = {
   notifications: Notification[];
   unreadCount: number;
   loading: boolean;
+  pushPermission: NotificationPermission;
+  requestPushPermission: () => Promise<void>;
   markAsRead: (id: number) => Promise<void>;
   markAllAsRead: () => Promise<void>;
   refresh: () => Promise<void>;
@@ -29,6 +31,17 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [toasts, setToasts] = useState<Notification[]>([]);
+  const [pushPermission, setPushPermission] = useState<NotificationPermission>(
+    typeof Notification !== 'undefined' ? Notification.permission : 'default'
+  );
+
+  // Request native browser push notification permission
+  const requestPushPermission = useCallback(async () => {
+    if (typeof Notification === 'undefined') return;
+    if (Notification.permission === 'granted') return;
+    const result = await Notification.requestPermission();
+    setPushPermission(result);
+  }, []);
   const socketInitiated = useRef(false);
 
   // Fetch notificaciones desde API
@@ -69,12 +82,28 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       socket.on('notification', (data: Notification) => {
         setNotifications(prev => [data, ...prev]);
         setUnreadCount(prev => prev + 1);
-        // Add toast
+        // Add in-app toast
         setToasts(prev => [...prev, data]);
-        // Auto-remove toast after 5s
         setTimeout(() => {
           setToasts(prev => prev.filter(t => t.id !== data.id));
         }, 5000);
+        // Fire native browser push notification
+        if (typeof window.Notification !== 'undefined' && window.Notification.permission === 'granted') {
+          try {
+            const nativeNotif = new window.Notification(data.title, {
+              body: data.message,
+              icon: '/LOGO.png',
+              badge: '/LOGO.png',
+              tag: `notif-${data.id}`,
+            });
+            nativeNotif.onclick = () => {
+              window.focus();
+              nativeNotif.close();
+            };
+          } catch {
+            // Browser may block - fail silently
+          }
+        }
       });
     } catch {
       // No token, ignore
@@ -107,7 +136,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   }, []);
 
   return (
-    <NotificationContext.Provider value={{ notifications, unreadCount, loading, markAsRead, markAllAsRead, refresh }}>
+    <NotificationContext.Provider value={{ notifications, unreadCount, loading, pushPermission, requestPushPermission, markAsRead, markAllAsRead, refresh }}>
       {children}
       {/* Toast overlay */}
       {toasts.length > 0 && (

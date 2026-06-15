@@ -9,5 +9,8 @@
     "build": "npm run build:frontend && npm run build:backend",
     "start": "npm start --prefix backend",
     "dev": "npm run dev --prefix backend"
+  },
+  "dependencies": {
+    "docx": "^9.7.1"
   }
 }

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNotifications, Notification } from '../hooks/useNotifications';
+import { useTranslation } from 'react-i18next';
 
 const typeIcons: Record<string, string> = {
   INFO: 'ℹ️',
@@ -22,7 +23,8 @@ function timeAgo(dateStr: string): string {
 }
 
 export default function NotificationBell() {
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const { notifications, unreadCount, markAsRead, markAllAsRead, requestPushPermission } = useNotifications();
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -53,7 +55,7 @@ export default function NotificationBell() {
           position: 'relative',
           transition: 'all 0.2s',
         }}
-        title="Notificaciones"
+        title={t('notifications.title')}
       >
         🔔
         {unreadCount > 0 && (
@@ -102,30 +104,45 @@ export default function NotificationBell() {
             alignItems: 'center',
           }}>
             <span style={{ color: '#fff', fontWeight: 700, fontSize: 15 }}>
-              Notificaciones {unreadCount > 0 && `(${unreadCount})`}
+              {t('notifications.title')} {unreadCount > 0 && `(${unreadCount})`}
             </span>
-            {unreadCount > 0 && (
+            <div style={{ display: 'flex', gap: '8px' }}>
               <button
-                onClick={() => markAllAsRead()}
+                onClick={requestPushPermission}
                 style={{
                   background: 'transparent',
                   border: 'none',
-                  color: '#dc2626',
+                  color: '#3b82f6',
                   cursor: 'pointer',
                   fontSize: 12,
                   fontWeight: 600,
                 }}
               >
-                Marcar todas leídas
+                {t('notifications.enablePush')}
               </button>
-            )}
+              {unreadCount > 0 && (
+                <button
+                  onClick={() => markAllAsRead()}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#dc2626',
+                    cursor: 'pointer',
+                    fontSize: 12,
+                    fontWeight: 600,
+                  }}
+                >
+                  {t('notifications.markAllRead')}
+                </button>
+              )}
+            </div>
           </div>
 
           {/* List */}
           <div style={{ maxHeight: 370, overflowY: 'auto' }}>
             {notifications.length === 0 ? (
               <div style={{ padding: 30, textAlign: 'center', color: '#64748b', fontSize: 14 }}>
-                Sin notificaciones
+                {t('notifications.empty')}
               </div>
             ) : (
               notifications.map(n => (
