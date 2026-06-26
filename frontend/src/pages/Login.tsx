@@ -4,11 +4,13 @@ import { useAuth } from '../hooks/useAuth';
 import { api } from '../services/api';
 import TwoFactorLogin from '../components/TwoFactorLogin';
 import { gsap } from 'gsap';
+import { Mail, Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 
 function LoginInner() {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isRegister, setIsRegister] = useState(false);
   const [fullName, setFullName] = useState('');
@@ -23,24 +25,16 @@ function LoginInner() {
   const [verificationCode, setVerificationCode] = useState('');
   const [verifyingEmail, setVerifyingEmail] = useState('');
 
-  const cardRef = useRef<HTMLDivElement>(null);
-  const logoRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
   // GSAP entrance animation
   useEffect(() => {
     const tl = gsap.timeline();
-    if (logoRef.current) {
-      tl.fromTo(logoRef.current,
-        { opacity: 0, y: -30, scale: 0.85 },
-        { opacity: 1, y: 0, scale: 1, duration: 1, ease: 'power3.out' }
-      );
-    }
-    if (cardRef.current) {
-      tl.fromTo(cardRef.current,
-        { opacity: 0, y: 40, scale: 0.95 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: 'power3.out' },
-        '-=0.5'
+    if (panelRef.current) {
+      tl.fromTo(panelRef.current,
+        { opacity: 0, x: -50 },
+        { opacity: 1, x: 0, duration: 1, ease: 'power3.out' }
       );
     }
   }, []);
@@ -49,8 +43,8 @@ function LoginInner() {
   useEffect(() => {
     if (formRef.current) {
       gsap.fromTo(formRef.current,
-        { opacity: 0, x: isRegister ? 20 : -20 },
-        { opacity: 1, x: 0, duration: 0.35, ease: 'power2.out' }
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }
       );
     }
   }, [isRegister]);
@@ -84,8 +78,8 @@ function LoginInner() {
     } catch (err: any) {
       const msg = err?.response?.data?.message || (isRegister ? 'Error al registrarse' : 'Error al iniciar sesión');
       setError(msg);
-      if (cardRef.current) {
-        gsap.fromTo(cardRef.current, { x: -8 }, { x: 0, duration: 0.4, ease: 'elastic.out(1, 0.3)' });
+      if (panelRef.current) {
+        gsap.fromTo(panelRef.current, { x: -8 }, { x: 0, duration: 0.4, ease: 'elastic.out(1, 0.3)' });
       }
       if (err?.response?.status === 403 && !isRegister) {
         setVerifyingEmail(email);
@@ -120,21 +114,7 @@ function LoginInner() {
   }
 
   return (
-    <div className="auth-wrapper" style={{ position: 'relative', overflow: 'hidden' }}>
-      {/* Decorative orbs */}
-      <div style={{
-        position: 'fixed', top: '-20%', left: '-10%',
-        width: 500, height: 500,
-        background: 'radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%)',
-        borderRadius: '50%', pointerEvents: 'none', zIndex: 0
-      }} />
-      <div style={{
-        position: 'fixed', bottom: '-20%', right: '-10%',
-        width: 600, height: 600,
-        background: 'radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 70%)',
-        borderRadius: '50%', pointerEvents: 'none', zIndex: 0
-      }} />
-
+    <div className="login-bg-wrapper">
       {requires2fa && (
         <TwoFactorLogin
           onVerify={handleVerify2FA}
@@ -143,22 +123,20 @@ function LoginInner() {
         />
       )}
 
-      <div ref={cardRef} className="auth-card login-premium-card">
-        {/* Premium top accent line */}
-        <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, height: 3,
-          background: 'linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #3b82f6 100%)',
-          backgroundSize: '200% 100%',
-          animation: 'shimmer 3s linear infinite',
-          borderRadius: '12px 12px 0 0'
-        }} />
-
-        <div ref={logoRef} style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
-          <img src="/LOGO.png" alt="AEROAZTECA" style={{ height: '70px', maxWidth: '100%', objectFit: 'contain' }} />
+      <div ref={panelRef} className="login-glass-panel">
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '32px' }}>
+          <img src="/LOGO.png" alt="AeroAzteca" style={{ height: '75px', objectFit: 'contain', marginBottom: '8px' }} />
+          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1e293b' }}>Airline Management System</h2>
         </div>
-        <p className="subtitle" style={{ marginBottom: 20, fontSize: 13 }}>
-          {requiresVerification ? 'Verificación de correo' : isRegister ? 'Crea tu cuenta de vuelo' : 'Accede a tu cuenta'}
-        </p>
+
+        <div style={{ marginBottom: '24px' }}>
+          <h1 style={{ margin: '0 0 8px 0', fontSize: '28px', color: '#0f172a', fontWeight: '700' }}>
+            {requiresVerification ? 'Verify Email' : isRegister ? 'Create Account' : 'Welcome Back'}
+          </h1>
+          <p style={{ margin: 0, color: '#64748b', fontSize: '15px' }}>
+            {requiresVerification ? 'Enter the code sent to your email.' : isRegister ? 'Sign up to book your next flight.' : 'Sign in to manage your operations.'}
+          </p>
+        </div>
 
         {error && (
           <div className="error-chip" style={{ animation: 'fadeIn 0.3s ease' }}>
@@ -167,76 +145,98 @@ function LoginInner() {
         )}
 
         {requiresVerification ? (
-          <form onSubmit={onVerifyEmail} className="form">
-            <p style={{ color: '#94a3b8', fontSize: 13, marginBottom: 12, lineHeight: 1.5 }}>
-              Ingresa el código de 6 dígitos que enviamos a <strong style={{ color: '#60a5fa' }}>{verifyingEmail}</strong>
+          <form onSubmit={onVerifyEmail} className="form-premium">
+            <p style={{ color: '#64748b', fontSize: 13, marginBottom: 12, lineHeight: 1.5 }}>
+              Enter the 6-digit code sent to <strong style={{ color: '#3b82f6' }}>{verifyingEmail}</strong>
             </p>
-            <label>Código de verificación</label>
-            <input
-              value={verificationCode}
-              onChange={(e) => setVerificationCode(e.target.value)}
-              type="text"
-              placeholder="123456"
-              maxLength={6}
-              required
-              style={{ textAlign: 'center', fontSize: 22, letterSpacing: '0.3em', fontWeight: 'bold' }}
-            />
-            <button type="submit" className="btn-primary btn-premium">Verificar Cuenta</button>
+            <label>Verification Code</label>
+            <div className="input-group">
+              <input
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
+                type="text"
+                placeholder="123456"
+                maxLength={6}
+                required
+                style={{ textAlign: 'center', fontSize: 22, letterSpacing: '0.3em', fontWeight: 'bold' }}
+              />
+            </div>
+            <button type="submit" className="btn-primary-solid">Verify Account</button>
             <button
               type="button"
-              className="btn-secondary"
-              style={{ marginTop: 4 }}
+              className="btn-link"
+              style={{ marginTop: 12, display: 'block', width: '100%', textAlign: 'center' }}
               onClick={async () => {
                 setError(null);
                 try {
                   const { data } = await api.post('/auth/resend-verification', { email: verifyingEmail });
                   alert(data.message);
                 } catch (err: any) {
-                  setError(err?.response?.data?.message || 'Error al reenviar el código');
+                  setError(err?.response?.data?.message || 'Error resending code');
                 }
               }}
             >
-              Reenviar código
+              Resend code
             </button>
             <button
               type="button"
               className="btn-link"
-              style={{ marginTop: 12, color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', fontSize: 12 }}
+              style={{ marginTop: 12, display: 'block', width: '100%', textAlign: 'center' }}
               onClick={() => { setRequiresVerification(false); setIsRegister(true); }}
             >
-              ← Regresar al registro
+              ← Back to register
             </button>
           </form>
         ) : (
-          <form ref={formRef} onSubmit={onSubmit} className="form">
+          <form ref={formRef} onSubmit={onSubmit} className="form-premium">
             {isRegister && (
               <>
-                <label>Nombre completo</label>
-                <input value={fullName} onChange={(e) => setFullName(e.target.value)} type="text" placeholder="Tu nombre completo" required />
+                <label>Full Name</label>
+                <div className="input-group">
+                  <input value={fullName} onChange={(e) => setFullName(e.target.value)} type="text" placeholder="Your Full Name" required />
+                </div>
               </>
             )}
             <label>Email</label>
-            <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="usuario@aeroazteca.com" required />
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <label style={{ margin: 0 }}>Contraseña</label>
-              <Link to="/forgot-password" style={{ color: '#60a5fa', fontSize: 12, textDecoration: 'none' }}>¿Olvidaste tu contraseña?</Link>
+            <div className="input-group">
+              <Mail className="input-icon" size={18} />
+              <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="Your Email Address" required />
             </div>
-            <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="••••••••" required />
 
-            <button type="submit" className="btn-primary btn-premium" style={{ marginTop: 4 }}>
-              {isRegister ? '✈ Registrarse' : '→ Ingresar'}
+            <label>Password</label>
+            <div className="input-group">
+              <Lock className="input-icon" size={18} />
+              <input value={password} onChange={(e) => setPassword(e.target.value)} type={showPassword ? "text" : "password"} placeholder="Password" required />
+              <button type="button" className="icon-btn-right" onClick={() => setShowPassword(!showPassword)}>
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-10px', marginBottom: '16px' }}>
+              <Link to="/forgot-password" style={{ color: '#475569', fontSize: 13, textDecoration: 'none', fontWeight: '500' }}>Forgot Password?</Link>
+            </div>
+
+            <button type="submit" className="btn-primary-solid">
+              {isRegister ? 'Sign Up' : 'Sign In'}
             </button>
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={() => { setIsRegister(!isRegister); setError(null); }}
-            >
-              {isRegister ? 'Ya tengo cuenta — Iniciar sesión' : 'Crear cuenta nueva (pasajero)'}
-            </button>
-            <div className="hint" style={{ marginTop: 4, fontSize: 11, letterSpacing: '0.15em', opacity: 0.5 }}>AEROAZTECA © 2025</div>
+            
+            <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '14px', color: '#64748b' }}>
+              {isRegister ? 'Already have an account? ' : "Don't have an account? "}
+              <button
+                type="button"
+                className="btn-link-bold"
+                onClick={() => { setIsRegister(!isRegister); setError(null); }}
+              >
+                {isRegister ? 'Sign In' : 'Contact Support'}
+              </button>
+            </div>
           </form>
         )}
+        
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px', marginTop: 'auto', paddingTop: '40px', color: '#94a3b8', fontSize: '13px' }}>
+          <ShieldCheck size={16} />
+          <span>Secure Login</span>
+        </div>
       </div>
     </div>
   );
