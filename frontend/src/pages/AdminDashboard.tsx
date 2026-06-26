@@ -8,6 +8,7 @@ import SecuritySettings from '../components/SecuritySettings';
 import PageTransition from '../components/PageTransition';
 import ProfileSettings from '../components/ProfileSettings';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import BrandLogo from '../components/BrandLogo';
 import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 function Layout({ children }: { children: React.ReactNode }) {
@@ -40,8 +41,8 @@ function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="layout">
       <aside className="sidebar" ref={sidebarRef}>
-        <div className="brand" ref={brandRef} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '10px 0' }}>
-          <img src="/LOGO.png" alt="AEROAZTECA" style={{ height: '36px', maxWidth: '100%', objectFit: 'contain' }} />
+        <div className="brand" ref={brandRef}>
+          <BrandLogo />
         </div>
         <nav ref={linksRef as any}>
           <Link to="/admin">🏠 Inicio</Link>

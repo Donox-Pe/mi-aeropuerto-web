@@ -4,6 +4,7 @@ import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { gsap } from 'gsap';
 import { flightsApi, bookingsApi, seatsApi, Flight, Booking, Seat, pricingApi, PriceCalculation, travelOffersApi, TravelOffer, stripeApi } from '../services/api';
 import PaymentModal from '../components/PaymentModal';
+import BrandLogo from '../components/BrandLogo';
 import Ticket from '../components/Ticket';
 import NotificationBell from '../components/NotificationBell';
 import PaymentSuccess from './PaymentSuccess';
@@ -45,8 +46,8 @@ function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="layout">
       <aside className="sidebar" ref={sidebarRef}>
-        <div className="brand" ref={brandRef} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '10px 0' }}>
-          <img src="/LOGO.png" alt="AEROAZTECA" style={{ height: '36px', maxWidth: '100%', objectFit: 'contain' }} />
+        <div className="brand" ref={brandRef}>
+          <BrandLogo />
         </div>
         <nav ref={linksRef as any}>
           <Link to="/passenger">🏠 {t('nav.home')}</Link>

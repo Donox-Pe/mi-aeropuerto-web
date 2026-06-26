@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useEffect, useState, useRef } from 'react';
 import { gsap } from 'gsap';
 import { flightsApi, CreateFlightDto, UpdateFlightDto, Flight, adminFlightsApi, AdminFlightWithCount, PassengerLite, paymentsApi, Payment, seatsApi, Seat, pricingApi, PriceCalculation, bookingsApi, Booking } from '../services/api';
+import BrandLogo from '../components/BrandLogo';
 import NotificationBell from '../components/NotificationBell';
 import SecuritySettings from '../components/SecuritySettings';
 import PageTransition from '../components/PageTransition';
@@ -39,8 +40,8 @@ function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="layout">
       <aside className="sidebar" ref={sidebarRef}>
-        <div className="brand" ref={brandRef} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '10px 0' }}>
-          <img src="/LOGO.png" alt="AEROAZTECA" style={{ height: '36px', maxWidth: '100%', objectFit: 'contain' }} />
+        <div className="brand" ref={brandRef}>
+          <BrandLogo />
         </div>
         <nav ref={linksRef as any}>
           <Link to="/agent">🏠 Inicio</Link>

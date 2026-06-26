@@ -58,7 +58,8 @@ export default function PremiumFlightBackground() {
   ];
 
   // Path SVG de la silueta del avión comercial exacto (Boeing / Airbus con motores y alas definidas)
-  const planePath = "M 25,0 C 25,-1 20,-3 14,-3 L 10,-3 L -2,-22 L 2,-22 L 12,-3 L -5,-3 L -10,-10 L -7,-10 L -1,-3 L -6,-3 L -9,0 L -6,3 L -1,3 L -7,10 L -10,10 L -5,3 L 12,3 L 2,22 L -2,22 L 10,3 L 14,3 C 20,3 25,1 25,0 Z";
+  // Utilizamos mejor una imagen PNG realista (A380 view from top) de Wikimedia Commons para que los aviones se vean reales.
+  const planeImageHref = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/A380_top_view.svg/512px-A380_top_view.svg.png";
 
   return (
     <div ref={containerRef} className="flight-bg-container">
@@ -137,11 +138,15 @@ export default function PremiumFlightBackground() {
                 animationDelay: `${route.delay}s`,
               }}
             >
-              {/* Sombra y Silueta de Avión Comercial Realista */}
-              <path
-                d={planePath}
+              {/* Sombra y Silueta de Avión Comercial Realista (Imagen PNG en vez de Path) */}
+              <image
+                href={planeImageHref}
+                x="-18"
+                y="-18"
+                width="36"
+                height="36"
                 className="flying-airplane"
-                transform="scale(0.55)"
+                transform="rotate(90)"
               />
 
               {/* Caja de Datos Telemetría HUD (Fórmula 1 / Tracker militar moderno) */}
