@@ -58,8 +58,8 @@ export default function PremiumFlightBackground() {
   ];
 
   // Path SVG de la silueta del avión comercial exacto (Boeing / Airbus con motores y alas definidas)
-  // Utilizamos mejor una imagen PNG realista (A380 view from top) de Wikimedia Commons para que los aviones se vean reales.
-  const planeImageHref = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/A380_top_view.svg/512px-A380_top_view.svg.png";
+  // Utilizamos mejor una imagen PNG realista (A380 view from top) generada por nosotros para que los aviones se vean reales y no haya bloqueos de URL.
+  const planeImageHref = "/plane-real.png";
 
   return (
     <div ref={containerRef} className="flight-bg-container">

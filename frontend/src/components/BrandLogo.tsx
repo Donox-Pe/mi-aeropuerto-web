@@ -5,15 +5,15 @@ export default function BrandLogo() {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 0', marginBottom: '16px' }}>
       <div style={{ 
-        background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-        borderRadius: '10px',
-        padding: '8px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        boxShadow: '0 4px 15px rgba(59, 130, 246, 0.4)'
+        height: '40px',
+        width: '40px',
+        overflow: 'hidden',
+        borderRadius: '8px'
       }}>
-        <Plane color="white" size={22} style={{ transform: 'rotate(45deg)' }} />
+        <img src="/LOGO.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
       </div>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         <span style={{ 
