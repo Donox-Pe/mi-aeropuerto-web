@@ -483,7 +483,9 @@ button {
    VIP CARD (Dashboard Panels)
    ============================================ */
 .vip-card {
-    background: linear-gradient(135deg, rgba(20,15,5,0.95) 0%, rgba(10,8,0,0.98) 100%);
+    background: linear-gradient(135deg, rgba(20,15,5,0.6) 0%, rgba(10,8,0,0.7) 100%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(251,191,36,0.3);
     border-radius: 16px;
     padding: 24px;
@@ -514,7 +516,9 @@ button {
    STAT / KPI CARDS
    ============================================ */
 .stat-card {
-    background: rgba(14,14,22,0.92);
+    background: rgba(14,14,22,0.45);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255,255,255,0.07);
     border-radius: 14px;
     padding: 20px 24px;
@@ -567,7 +571,9 @@ button {
    FLIGHT CARD PREMIUM
    ============================================ */
 .flight-card {
-    background: rgba(12,12,20,0.92) !important;
+    background: rgba(12,12,20,0.45) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255,255,255,0.08) !important;
     border-radius: 16px !important;
     padding: 20px !important;
@@ -629,7 +635,9 @@ button {
     padding: 24px;
     position: relative;
     z-index: 1;
-    background: linear-gradient(135deg, rgba(15,23,42,0.92) 0%, rgba(10,10,20,0.97) 100%);
+    background: linear-gradient(135deg, rgba(15,23,42,0.6) 0%, rgba(10,10,20,0.65) 100%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(59,130,246,0.2);
     box-shadow: 0 0 60px rgba(59,130,246,0.06), 0 8px 24px rgba(0,0,0,0.4);
     overflow: hidden;
@@ -668,7 +676,9 @@ button {
    CARD PREMIUM
    ============================================ */
 .card {
-    background: rgba(12,12,20,0.9) !important;
+    background: rgba(12,12,20,0.45) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
     border: 1px solid rgba(255,255,255,0.07) !important;
     border-radius: 16px !important;
     box-shadow: 0 4px 24px rgba(0,0,0,0.3) !important;
@@ -678,7 +688,9 @@ button {
    SIDEBAR PREMIUM
    ============================================ */
 .sidebar {
-    background: rgba(6,6,14,0.97) !important;
+    background: rgba(6,6,14,0.65) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
     border-right: 1px solid rgba(59,130,246,0.15) !important;
 }
 .sidebar::after {
